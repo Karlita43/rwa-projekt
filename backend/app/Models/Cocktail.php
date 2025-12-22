@@ -6,7 +6,21 @@ class Cocktail extends Model
 
     public function ingredients()
     {
-        return $this->belongsToMany(Ingredient::class)
-                    ->withPivot('quantity', 'unit');
+        return $this->belongsToMany(
+            Ingredient::class,
+            'cocktail_ingredients',
+            'cocktail_id',
+            'ingredient_id'
+        )->withPivot('quantity', 'unit');
+    }
+
+    public function favoritedByUsers()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'favorites',
+            'cocktail_id',
+            'user_id'
+        );
     }
 }

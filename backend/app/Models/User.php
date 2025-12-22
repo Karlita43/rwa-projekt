@@ -30,4 +30,27 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+     public function favoriteCocktails()
+    {
+        return $this->belongsToMany(
+            Cocktail::class,
+            'favorites',
+            'user_id',
+            'cocktail_id'
+        );
+    }
+
+    public function ingredients()
+    {
+        return $this->belongsToMany(
+            Ingredient::class,
+            'user_ingredients',
+            'user_id',
+            'ingredient_id'
+        )->withPivot('quantity', 'unit')
+         ->withTimestamps();
+    }
+
+
 }
