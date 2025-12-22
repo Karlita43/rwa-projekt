@@ -8,6 +8,8 @@
     <meta name="description" content="Pretraži i otkrij koktele po alkoholu, sastojcima i stilu." />
     <!-- Povezivanje vanjske CSS datoteke -->
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="login.css" />
+    
 </head>
 <body>
 
@@ -34,7 +36,8 @@
                 </div>
     
                 <a class="nav-link" href="#">O nama</a>
-                <a class="nav-link" href="#">Kontakt</a>
+
+                <button class="nav-link login-btn" type="button" id="openLogin">Log In</button>
             </nav>
         </div>
         </header>
@@ -94,6 +97,73 @@
     <footer class="site-footer" id="about">
         <p>©2025/26 Cocktail projekt</p>
     </footer>
-    
+
+    <div class="modal" id="loginModal" aria-hidden="true">
+        <div  class="modal-backdrop" id="closeLogin"></div>
+
+        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+            <div class="modal-head">
+                <h3 id="loginTitle">Prijavite se</h3>
+                <button class="modal-x" type="button" id="closeLoginX" aria-label="Zatvori">✕</button>
+            </div>
+
+            <form class="modal-form" id="loginForm">
+                <label>
+                    Email
+                    <input type="email" id="email" required />
+                </label>
+
+                <label>
+                    Lozinka
+                    <input type="password" id="password" required />
+                </label>
+
+                <button class="btn-modal-submit" type="submit">Prijava</button>
+
+                <p class="modal-hint">
+                    Nemate još račun?
+                    <button type="button" class="modal-link" id="openRegisterFromLogin">Registriraj se</button>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- REGISTRACIJA KORISNIKA-->
+     <div class="modal" id="registerModal" aria-hidden="true">
+        <div class="modal-backdrop" id="closeRegister"></div>
+
+        <div class="modal-card" role="dialog" aria-hidden="true" aria-labelledby="registerTitle">
+            <div class="modal-head">
+                <h3 id="registerTitle">Registracija</h3>
+                <button class="modal-x" type="button" id="closeRegisterX" aria-label="Zatvori">✕</button>
+            </div>
+
+            <form class="modal-form" id="registerForm">
+                <label>
+                    Ime
+                    <input type="text" id="regName" required />
+                </label>
+
+                <label>
+                    Email
+                    <input type="text" id="regEmail" required />
+                </label>
+
+                <label>
+                    Lozinka
+                    <input type="text" id="regPassword" required />
+                </label>
+
+                <button class="btn-modal-submit" type="submit">Registriraj se</button>
+
+                <p class="modal-hint">
+                    Već imate račun?
+                    <button type="button" class="modal-link" id="openLoginFromRegister">Prijava</button>
+                </p>
+            </form>
+        </div>
+     </div>
+
+    <script src="login.js"></script>
 </body>
 </html>
