@@ -6,8 +6,6 @@ class Ingredient extends Model
 
     public function cocktails()
     {
-        public function cocktails()
-    {
         return $this->belongsToMany(
             Cocktail::class,
             'cocktail_ingredients',
