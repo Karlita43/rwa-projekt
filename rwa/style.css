@@ -1,0 +1,217 @@
+/* RESET / OSNOVNO */
+* { box-sizing: border-box; }
+
+html, body {height: 100%;}
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: #2b1f1b;
+    background: #f3e3d1;
+}
+
+/* HEADER */
+.site-header{
+    width: 100%;
+    padding: 28px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /*da se nema problema se dropdownom i textom*/
+    position: relative;
+    z-index: 10;
+}
+
+.header-inner{
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.brand {
+    display: inline-flex;
+    gap: 10px;
+    align-items: center;
+    text-decoration: none;
+    color: inherit; /*uzima boju ih bodya */
+}
+
+.brand-mark { font-size: 22px;}
+.brand-name{
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+}
+
+/* NAVIGACIJSKI MENI */
+
+.nav{
+    display: flex;
+    align-items: center;
+    gap: 28px;
+}
+
+.nav-link{
+    text-decoration: none;
+    color: inherit;
+    font-size: 16px;
+    opacity: 0.9;
+}
+
+.nav-link:hover {opacity: 1;}
+
+/* DROPDOWN */
+.dropdown {position: relative;}
+
+.dropdown-btn{
+    background: transparent;
+    border: 0;
+    padding: 8px 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.chev {font-size: 12px; opacity: 0.8;}
+
+.dropdown-menu{
+    position: absolute;
+    z-index: 1000;
+    top: 36px;
+    right: 0;
+    min-width: 200px;
+
+    display: none;
+    padding: 8px;
+
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
+}
+
+.dropdown-menu a{
+    display: block;
+    padding: 10px 10px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: inherit;
+    font-size: 14px;
+    opacity: 0.95;
+}
+
+.dropdown-menu a:hover{
+    background: rgba(0, 0, 0, 0.06);
+    opacity: 1;
+}
+
+.dropdown:hover .dropdown-menu {display: block;}
+
+/* HERO */
+
+.hero{
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 10px 24px 64px;
+}
+
+.hero-inner{
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap: 48px;
+    align-items: center;
+    min-height: 520px;
+}
+
+.hero-left h1{
+    font-family: ui-serif, Georgia, 'Times New Roman', serif;
+    font-size: clamp(40px, 4.2vw, 72px);
+    line-height: 1.05;
+    margin: 0 0 18px;
+    font-weight: 500;
+}
+
+.hero-left p{
+    margin: 0 0 28px;
+    max-width: 56ch;
+    font-size: 16px;
+    line-height: 1.75;
+    opacity: 0.92;
+}
+
+/*button*/
+.btn{
+    display: inline-flex;
+    align-items: center;
+    gap: 10px; /*razmak za sterlicu*/
+    padding: 14px 22px;
+    border: 1px solid rgba(0, 0, 0, 0.35);
+    background: rgba(255, 255, 255, 0.25);
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.50);
+}
+
+.btn:hover { transform: translateY(-2px);}
+
+/* desna slika */
+
+.hero-media{
+    border-radius: 999px 24px 24px 999px;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.18);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.50);
+}
+
+.hero-media img{
+    width: 100%;
+    height: 520px;
+    object-fit: cover;
+    display: block;
+}
+
+/* SEKCIJE ISPOD (za kasnije) */
+
+.section{
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+.section h2{
+    margin: 0 0 16px;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.grid{
+    display: grid;
+    gap: 16px;
+}
+
+/* FOOTER */
+.size-footer{
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px 24px 60px;
+    opacity: 0.8;
+}
+
+/* RESPONZIVNO */
+@media (max-width: 900px){
+    .hero-inner{
+        grid-template-columns: 1fr;
+        min-height: auto;
+    }
+
+    .hero-media img {height: 360px;}
+
+    .nav {gap: 16px;}
+}
