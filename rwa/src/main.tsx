@@ -22,7 +22,7 @@ const router = createBrowserRouter([
       { path: "kokteli/:slug", element: <Category /> },
       { path: "o-nama", element: <div className="page"><h2>O nama</h2></div> },
       
-      /*{ path: "login", element: <Login /> },*/
+      { path: "login", element: <Login onClose={() => {}} /> }
 
     ],
   },

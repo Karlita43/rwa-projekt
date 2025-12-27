@@ -1,102 +1,113 @@
 import { useEffect, useState } from "react";
 
 type RegisterProps = {
-    onClose: () => void;
-    onSwitchToLogin?: () => void;
+  onClose: () => void;
+  onSwitchToLogin?: () => void;
 };
 
 export default function Register({ onClose, onSwitchToLogin }: RegisterProps) {
-    const [name, setName] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
-    const [shake, setShake] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordConfirmation, setPasswordConfirmation] = useState("");
+  const [error, setError] = useState("");
+  const [shake, setShake] = useState(false);
 
-    useEffect(() => {
-        document.body.classList.add("modal-open");
-        return () => document.body.classList.remove("modal-open");
-    }, []);
+  useEffect(() => {
+    document.body.classList.add("modal-open");
+    return () => document.body.classList.remove("modal-open");
+  }, []);
 
-    function triggerError(message: string) {
-        setError(message);
-        setShake(true);
-        window.setTimeout(() => setShake(false), 350);
+  function triggerError(message: string) {
+    setError(message);
+    setShake(true);
+    setTimeout(() => setShake(false), 350);
+  }
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    if (!name.trim() || !email.trim() || !password.trim() || !passwordConfirmation.trim()) {
+      triggerError("Molimo ispuni sva polja.");
+      return;
     }
 
-    function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-        e.preventDefault();
-
-        if (!name.trim() || !email.trim() || !password.trim()) {
-            triggerError("Molimo ispuni sva polja.");
-            return;
-        }
-
-        // kasnije: backend registracija
-        setError("");
-        alert("Registracija uspješna 🎉");
-        onClose();
+    if (password !== passwordConfirmation) {
+      triggerError("Lozinke se ne podudaraju.");
+      return;
     }
 
-    return (
-        <div className="modal is-open" role="dialog" aria-modal="true">
-            <div className="modal-backdrop" onClick={onClose} />
+    try {
+      // 1️⃣ Dohvat CSRF cookie-a
+      await fetch("http://localhost:8000/sanctum/csrf-cookie", { credentials: "include" });
 
-            <div
-                className={`modal-card ${shake ? "shake" : ""}`}
-                onClick={(e) => e.stopPropagation()}
-            >
-                <div className="modal-head">
-                    <h3>Registracija</h3>
-                    <button className="modal-x" type="button" onClick={onClose} aria-label="Zatvori">
-                        ✕
-                    </button>
-                </div>
+      // 2️⃣ POST request za registraciju
+      const response = await fetch("http://localhost:8000/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ name, email, password, password_confirmation: passwordConfirmation }),
+      });
 
-                <form className="modal-form" onSubmit={handleSubmit}>
-                    <label>
-                        Ime
-                        <input
-                            type="text"
-                            placeholder="Unesite ime"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                        />
-                    </label>
+      const data = await response.json();
 
-                    <label>
-                        Email
-                        <input
-                            type="email"
-                            placeholder="Unesite email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
-                    </label>
+      if (!response.ok) {
+        triggerError(data.message || "Nešto nije u redu.");
+        return;
+      }
 
-                    <label>
-                        Lozinka
-                        <input
-                            type="password"
-                            placeholder="Unesite lozinku"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
-                    </label>
+      console.log("REGISTER SUCCESS:", data);
+      setError("");
+      alert("Registracija uspješna 🎉");
 
-                    <button className="btn btn-login" type="submit">
-                        Registriraj se
-                    </button>
+      onSwitchToLogin?.();
+      onClose();
+    } catch (err) {
+      triggerError("Server nije dostupan.");
+      console.error(err);
+    }
+  }
 
-                    {error && <div className="form-error">{error}</div>}
-                </form>
+  return (
+    <div className="modal is-open" role="dialog" aria-modal="true">
+      <div className="modal-backdrop" onClick={onClose} />
 
-                <p className="modal-hint">
-                    Već imaš račun?
-                    <button className="modal-link" type="button" onClick={onSwitchToLogin}>
-                        Prijavi se
-                    </button>
-                </p>
-            </div>
+      <div className={`modal-card ${shake ? "shake" : ""}`} onClick={(e) => e.stopPropagation()}>
+        <div className="modal-head">
+          <h3>Registracija</h3>
+          <button className="modal-x" type="button" onClick={onClose} aria-label="Zatvori">✕</button>
         </div>
-    );
+
+        <form className="modal-form" onSubmit={handleSubmit}>
+          <label>
+            Ime
+            <input type="text" placeholder="Unesite ime" value={name} onChange={(e) => setName(e.target.value)} />
+          </label>
+
+          <label>
+            Email
+            <input type="email" placeholder="Unesite email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          </label>
+
+          <label>
+            Lozinka
+            <input type="password" placeholder="Unesite lozinku" value={password} onChange={(e) => setPassword(e.target.value)} />
+          </label>
+
+          <label>
+            Potvrdi lozinku
+            <input type="password" placeholder="Potvrdi lozinku" value={passwordConfirmation} onChange={(e) => setPasswordConfirmation(e.target.value)} />
+          </label>
+
+          <button className="btn btn-login" type="submit">Registriraj se</button>
+          {error && <div className="form-error">{error}</div>}
+        </form>
+
+        <p className="modal-hint">
+          Već imaš račun?
+          <button className="modal-link" type="button" onClick={onSwitchToLogin}>Prijavi se</button>
+        </p>
+      </div>
+    </div>
+  );
 }
