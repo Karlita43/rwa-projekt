@@ -22,7 +22,7 @@ const router = createBrowserRouter([
       { path: "kokteli/:slug", element: <Category /> },
       { path: "o-nama", element: <div className="page"><h2>O nama</h2></div> },
       
-      /*{ path: "login", element: <Login /> },*/
+      { path: "login", element: <Login onClose={() => {}} /> }
 
     ],
   },
@@ -33,3 +33,17 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <RouterProvider router={router} />
   </React.StrictMode>
 );
+
+
+/*
+
+// ovo je za korištenje tokena za autorizaciju nakon prijave/registracije
+  const token = localStorage.getItem("token");
+
+fetch("http://localhost:8000/api/me", {
+  headers: {
+    Authorization: `Bearer ${token}`
+  }
+});
+
+*/

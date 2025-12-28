@@ -64,15 +64,90 @@ document.addEventListener("keydown", (e: KeyboardEvent) => {
 
 //sprijeciti da submit reloada stranicu
 const loginForm = document.getElementById("loginForm") as HTMLFormElement | null;
-loginForm?.addEventListener("submit", (e) => {
+
+loginForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
-    // TODO: fetch login
+
+    const email = (document.getElementById("email") as HTMLInputElement).value;
+    const password = (document.getElementById("password") as HTMLInputElement).value;
+
+    try {
+        const response = await fetch("http://localhost:8000/api/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            alert(data.message || "Greška pri prijavi");
+            return;
+        }
+
+        // SPREMI TOKEN
+        localStorage.setItem("token", data.token);
+
+        alert("Uspješna prijava!");
+        closeModal(loginModal);
+
+        // promijeni gumb u headeru
+        const loginBtn = document.getElementById("openLogin");
+        if (loginBtn) {
+            loginBtn.textContent = data.user.name;
+        }
+
+    } catch (error) {
+        console.error(error);
+        alert("Server error");
+    }
 });
 
+
 const registerForm = document.getElementById("registerForm") as HTMLFormElement | null;
-registerForm?.addEventListener("submit", (e) => {
+
+registerForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
-    // TODO: fetch register
+
+    const name = (document.getElementById("regName") as HTMLInputElement).value;
+    const email = (document.getElementById("regEmail") as HTMLInputElement).value;
+    const password = (document.getElementById("regPassword") as HTMLInputElement).value;
+
+    try {
+        const response = await fetch("http://localhost:8000/api/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ name, email, password })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            alert(data.message || "Greška pri registraciji");
+            return;
+        }
+
+        // SPREMI TOKEN (auto login nakon registracije)
+        localStorage.setItem("token", data.token);
+
+        alert("Registracija uspješna!");
+        closeModal(registerModal);
+
+        // promijeni UI
+        const loginBtn = document.getElementById("openLogin");
+        if (loginBtn) {
+            loginBtn.textContent = data.user.name;
+        }
+
+    } catch (error) {
+        console.error(error);
+        alert("Server error");
+    }
 });
+
 
 console.log("login.ts loaded");
