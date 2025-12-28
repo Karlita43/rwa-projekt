@@ -31,17 +31,16 @@ export default function Login({ onClose, onSwitchToRegister }: LoginProps) {
     }
 
     try {
-      // 1️⃣ Dohvat CSRF cookie-a
-      await fetch("http://localhost:8000/sanctum/csrf-cookie", {credentials: "include",
-      });
 
       // 2️⃣ Login request
       const response = await fetch("http://localhost:8000/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ email, password }),
-      });
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+    },
+    body: JSON.stringify({ email, password })
+});
 
       const data = await response.json(); // pročitaj JSON samo jednom
 

@@ -25,48 +25,53 @@ export default function Register({ onClose, onSwitchToLogin }: RegisterProps) {
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!name.trim() || !email.trim() || !password.trim() || !passwordConfirmation.trim()) {
-      triggerError("Molimo ispuni sva polja.");
-      return;
-    }
-
-    if (password !== passwordConfirmation) {
-      triggerError("Lozinke se ne podudaraju.");
-      return;
-    }
-
-    try {
-      // 1️⃣ Dohvat CSRF cookie-a
-      await fetch("http://localhost:8000/sanctum/csrf-cookie", { credentials: "include" });
-
-      // 2️⃣ POST request za registraciju
-      const response = await fetch("http://localhost:8000/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ name, email, password, password_confirmation: passwordConfirmation }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        triggerError(data.message || "Nešto nije u redu.");
-        return;
-      }
-
-      console.log("REGISTER SUCCESS:", data);
-      setError("");
-      alert("Registracija uspješna 🎉");
-
-      onSwitchToLogin?.();
-      onClose();
-    } catch (err) {
-      triggerError("Server nije dostupan.");
-      console.error(err);
-    }
+  if (!name.trim() || !email.trim() || !password.trim() || !passwordConfirmation.trim()) {
+    triggerError("Molimo ispuni sva polja.");
+    return;
   }
+
+  if (password !== passwordConfirmation) {
+    triggerError("Lozinke se ne podudaraju.");
+    return;
+  }
+
+  try {
+    const response = await fetch("http://localhost:8000/api/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+      body: JSON.stringify({
+        name,
+        email,
+        password,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      triggerError(data.message || "Greška");
+      return;
+    }
+
+    // ✅ SPREMI TOKEN
+    localStorage.setItem("token", data.token);
+
+    setError("");
+    alert("Registracija uspješna 🎉");
+
+    onSwitchToLogin?.();
+    onClose();
+
+  } catch (err) {
+    console.error(err);
+    triggerError("Server nije dostupan.");
+  }
+}
 
   return (
     <div className="modal is-open" role="dialog" aria-modal="true">
@@ -111,3 +116,16 @@ export default function Register({ onClose, onSwitchToLogin }: RegisterProps) {
     </div>
   );
 }
+
+/*
+
+// ovo je za korištenje tokena za autorizaciju nakon prijave/registracije
+  const token = localStorage.getItem("token");
+
+fetch("http://localhost:8000/api/me", {
+  headers: {
+    Authorization: `Bearer ${token}`
+  }
+});
+
+*/
