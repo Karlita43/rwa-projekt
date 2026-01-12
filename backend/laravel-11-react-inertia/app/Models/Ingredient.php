@@ -1,8 +1,16 @@
 <?php
 
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use App\Models\Cocktail;
+
 class Ingredient extends Model
 {
-    protected $table = 'ingredients';
+    protected $fillable = [
+        'name',
+        'category',
+    ];
 
     public function cocktails()
     {
@@ -11,17 +19,6 @@ class Ingredient extends Model
             'cocktail_ingredients',
             'ingredient_id',
             'cocktail_id'
-        ) ->withPivot('quantity', 'unit');
-    }
-
-     public function users()
-    {
-        return $this->belongsToMany(
-            User::class,
-            'user_ingredients',
-            'ingredient_id',
-            'user_id'
         );
     }
-
 }
