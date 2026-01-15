@@ -2,11 +2,15 @@
 
 namespace App\Models;
 
+
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+
+use App\Models\Cocktail;
+use App\Models\Ingredient;
 
 class User extends Authenticatable
 {
@@ -46,4 +50,25 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function ingredients()
+    {
+        return $this->belongsToMany(
+            Ingredient::class,
+            'user_ingredients',
+            'user_id',
+            'ingredients_id'
+         );
+    }
+
+    public function favorites()
+{
+    return $this->belongsToMany(
+        Cocktail::class,
+        'favorites',
+        'user_id',
+        'cocktail_id'
+    );
+}
+
 }
