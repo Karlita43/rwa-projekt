@@ -21,6 +21,6 @@ class Cocktail extends Model
             'cocktail_ingredients',
             'cocktail_id',
             'ingredient_id'
-        );
+        )->withPivot('quantity', 'unit'); 
     }
 }

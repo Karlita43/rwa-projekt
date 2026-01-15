@@ -18,11 +18,10 @@ class CocktailController extends Controller
 
     // GET /api/cocktails/{id}
     public function show($id)
-    {
-        $cocktail = Cocktail::findOrFail($id);
-
-        return response()->json($cocktail);
-    }
+{
+    $cocktail = Cocktail::with('ingredients')->findOrFail($id);
+    return response()->json($cocktail);
+}
 
     public function search(Request $request)
 {
