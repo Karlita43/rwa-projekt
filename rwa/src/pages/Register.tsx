@@ -47,16 +47,22 @@ export default function Register({ onClose, onSwitchToLogin }: RegisterProps) {
       body: JSON.stringify({
         name,
         email,
-        password,
+        password_confirmation: passwordConfirmation,
       }),
     });
 
     const data = await response.json();
 
     if (!response.ok) {
-      triggerError(data.message || "Greška");
-      return;
-    }
+  if ( data && typeof data === "object" && "errors" in data && typeof data.errors === "object") {
+    const errors = Object.values(data.errors as Record<string, string[]>);
+    const firstError = errors[0]?.[0];
+    triggerError(firstError || "Greška u validaciji");
+  } else {
+    triggerError("Greška");
+  }
+  return;
+}
 
     // ✅ SPREMI TOKEN
     localStorage.setItem("token", data.token);
