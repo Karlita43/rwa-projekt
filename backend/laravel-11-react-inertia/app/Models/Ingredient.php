@@ -7,6 +7,11 @@ use App\Models\Cocktail;
 
 class Ingredient extends Model
 {
+    // (nije obavezno jer se tablica zove "ingredients",
+    // ali je korisno eksplicitno)
+    protected $table = 'ingredients';
+
+    
     protected $fillable = [
         'name',
         'category',
