@@ -10,10 +10,8 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
 
-// Cocktail Routes
 Route::get('/cocktails', [CocktailController::class, 'index']);
 
-// SEARCH MORA PRVA
 Route::get('/cocktails/search', [CocktailController::class, 'search']);
 
 Route::get('/cocktails/{id}', [CocktailController::class, 'show']);
