@@ -7,8 +7,9 @@ use App\Models\Cocktail;
 
 class Ingredient extends Model
 {
-
+    // ovo je opcionalno, ali nije problem da stoji
     protected $table = 'ingredients';
+
     protected $fillable = [
         'name',
         'category',
@@ -21,6 +22,6 @@ class Ingredient extends Model
             'cocktail_ingredients',
             'ingredient_id',
             'cocktail_id'
-         )->withPivot('quantity', 'unit');
+        )->withPivot('quantity', 'unit');
     }
 }

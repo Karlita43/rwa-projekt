@@ -12,7 +12,10 @@ class CocktailController extends Controller
     public function index()
     {
         return response()->json(
-            Cocktail::all()
+             Cocktail::query()
+            ->where('name', '!=', 'name')          // makni dummy red
+            ->where('description', '!=', 'description') // dodatna sigurnost
+            ->get()
         );
     }
 
