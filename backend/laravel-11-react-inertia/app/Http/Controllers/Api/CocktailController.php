@@ -8,33 +8,54 @@ use Illuminate\Http\Request;
 
 class CocktailController extends Controller
 {
-    // GET /api/cocktails
+    // GET /api/cocktails  (LISTA - bez sastojaka)
     public function index()
     {
-        return response()->json(
-             Cocktail::query()
-            ->where('name', '!=', 'name')          // makni dummy red
-            ->where('description', '!=', 'description') // dodatna sigurnost
-            ->get()
-        );
+        $cocktails = Cocktail::query()
+            ->where('name', '!=', 'name')                  // makni dummy red
+            ->where('description', '!=', 'description')    // dodatna sigurnost
+            ->select(['id', 'name', 'description', 'image_url']) // samo što treba za kartice
+            ->orderBy('id')
+            ->get();
+
+        return response()->json($cocktails);
     }
 
-    // GET /api/cocktails/{id}
+    // GET /api/cocktails/{id} (DETAIL - sa sastojcima)
     public function show($id)
-{
-    $cocktail = Cocktail::with('ingredients')->findOrFail($id);
-    return response()->json($cocktail);
-}
+    {
+        $cocktail = Cocktail::query()
+            ->where('name', '!=', 'name')
+            ->where('description', '!=', 'description')
+            ->with(['ingredients' => function ($q) {
+                $q->select('ingredients.id', 'ingredients.name')
+                  ->withPivot('quantity', 'unit');
+            }])
+            ->select(['id', 'name', 'description', 'instructions', 'image_url'])
+            ->findOrFail($id);
 
+        return response()->json($cocktail);
+    }
+
+    // GET /api/cocktails/search?ingredient=...
+    // (LISTA - bez sastojaka, samo filtriranje po ingredientu)
     public function search(Request $request)
-{
-    $ingredient = $request->query('ingredient');
+    {
+        $ingredient = trim((string) $request->query('ingredient', ''));
 
-    $cocktails = Cocktail::whereHas('ingredients', function ($q) use ($ingredient) {
-        $q->where('category', $ingredient)
-          ->orWhere('name', 'like', "%{$ingredient}%");
-    })->with('ingredients')->get();
+        $cocktails = Cocktail::query()
+            ->where('name', '!=', 'name')
+            ->where('description', '!=', 'description')
+            ->when($ingredient !== '', function ($query) use ($ingredient) {
+                $query->whereHas('ingredients', function ($q) use ($ingredient) {
+                    $q->where('category', $ingredient)
+                      ->orWhere('name', 'like', "%{$ingredient}%");
+                });
+            })
+            ->select(['id', 'name', 'description', 'image_url'])
+            ->orderBy('id')
+            ->get();
 
-    return response()->json($cocktails);
-}
+        return response()->json($cocktails);
+    }
 }
