@@ -7,16 +7,20 @@ use Illuminate\Support\Facades\Route;
 use App\Models\Cocktail;
 use Illuminate\Http\Request;
 
-// Authentication Routes
 
+//Za zaštićene rute --> nasnije favoriti ili ingredinets
+Route::group(['middleware' => ['auth:sanctum']], function() {
+    Route::post('/logout', [AuthController::class, 'logout']);
+});
+
+//Autentikacija
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
 
+
 Route::get('/cocktails', [CocktailController::class, 'index']);
-
 Route::get('/cocktails/search', [CocktailController::class, 'search']);
-
 Route::get('/cocktails/{id}', [CocktailController::class, 'show']);
 
 

@@ -9,10 +9,15 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.1.18",
+    "@types/axios": "^0.9.36",
+    "tailwindcss": "^4.1.18",
     "typescript": "~5.9.3",
     "vite": "^7.2.4"
   },
   "dependencies": {
-    "react-router-dom": "^7.11.0"
+    "axios": "^1.13.2",
+    "bootstrap": "^4.6.0",
+    "react-router-dom": "^7.12.0"
   }
 }
