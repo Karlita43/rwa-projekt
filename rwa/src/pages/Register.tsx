@@ -1,137 +1,80 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import api from "../api";
+import { useNavigate, Link } from "react-router-dom";
 
-type RegisterProps = {
-  onClose: () => void;
-  onSwitchToLogin?: () => void;
-};
-
-export default function Register({ onClose, onSwitchToLogin }: RegisterProps) {
+export default function Register() {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [passwordConfirmation, setPasswordConfirmation] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
   const [error, setError] = useState("");
-  const [shake, setShake] = useState(false);
 
-  useEffect(() => {
-    document.body.classList.add("modal-open");
-    return () => document.body.classList.remove("modal-open");
-  }, []);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  function triggerError(message: string) {
-    setError(message);
-    setShake(true);
-    setTimeout(() => setShake(false), 350);
-  }
+    if (!name.trim() || !email.trim() || !password.trim() || !passwordConfirm.trim()) {
+      setError("Molimo ispuni sva polja.");
+      return;
+    }
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-  e.preventDefault();
+    if (password !== passwordConfirm) {
+      setError("Lozinka i potvrda lozinke se ne podudaraju.");
+      return;
+    }
 
-  if (!name.trim() || !email.trim() || !password.trim() || !passwordConfirmation.trim()) {
-    triggerError("Molimo ispuni sva polja.");
-    return;
-  }
-
-  if (password !== passwordConfirmation) {
-    triggerError("Lozinke se ne podudaraju.");
-    return;
-  }
-
-  try {
-    const response = await fetch("http://localhost:8000/api/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-      },
-      body: JSON.stringify({
+    try {
+      await api.post("/register", {
         name,
         email,
-        password_confirmation: passwordConfirmation,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-  if ( data && typeof data === "object" && "errors" in data && typeof data.errors === "object") {
-    const errors = Object.values(data.errors as Record<string, string[]>);
-    const firstError = errors[0]?.[0];
-    triggerError(firstError || "Greška u validaciji");
-  } else {
-    triggerError("Greška");
-  }
-  return;
-}
-
-    // ✅ SPREMI TOKEN
-    localStorage.setItem("token", data.token);
-
-    setError("");
-    alert("Registracija uspješna 🎉");
-
-    onSwitchToLogin?.();
-    onClose();
-
-  } catch (err) {
-    console.error(err);
-    triggerError("Server nije dostupan.");
-  }
-}
+        password,
+        password_confirmation: passwordConfirm, // Laravel očekuje ovo polje
+      });
+      navigate("/login"); // nakon registracije vodi na login
+    } catch (err: any) {
+      console.error(err);
+      setError(err.response?.data?.message || "Greška kod registracije.");
+    }
+  };
 
   return (
-    <div className="modal is-open" role="dialog" aria-modal="true">
-      <div className="modal-backdrop" onClick={onClose} />
-
-      <div className={`modal-card ${shake ? "shake" : ""}`} onClick={(e) => e.stopPropagation()}>
-        <div className="modal-head">
-          <h3>Registracija</h3>
-          <button className="modal-x" type="button" onClick={onClose} aria-label="Zatvori">✕</button>
-        </div>
-
+    <div className="page">
+      <div className="modal-card">
+        <h2>Registracija</h2>
         <form className="modal-form" onSubmit={handleSubmit}>
-          <label>
-            Ime
-            <input type="text" placeholder="Unesite ime" value={name} onChange={(e) => setName(e.target.value)} />
-          </label>
-
-          <label>
-            Email
-            <input type="email" placeholder="Unesite email" value={email} onChange={(e) => setEmail(e.target.value)} />
-          </label>
-
-          <label>
-            Lozinka
-            <input type="password" placeholder="Unesite lozinku" value={password} onChange={(e) => setPassword(e.target.value)} />
-          </label>
-
-          <label>
-            Potvrdi lozinku
-            <input type="password" placeholder="Potvrdi lozinku" value={passwordConfirmation} onChange={(e) => setPasswordConfirmation(e.target.value)} />
-          </label>
-
-          <button className="btn btn-login" type="submit">Registriraj se</button>
+          <input
+            type="text"
+            placeholder="Ime"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <input
+            type="password"
+            placeholder="Lozinka"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <input
+            type="password"
+            placeholder="Potvrdi lozinku"
+            value={passwordConfirm}
+            onChange={(e) => setPasswordConfirm(e.target.value)}
+          />
+          <button type="submit" className="btn-login">
+            Registriraj se
+          </button>
           {error && <div className="form-error">{error}</div>}
         </form>
-
         <p className="modal-hint">
-          Već imaš račun?
-          <button className="modal-link" type="button" onClick={onSwitchToLogin}>Prijavi se</button>
+          Već imate račun? <Link to="/login" className="modal-link">Prijavi se</Link>
         </p>
       </div>
     </div>
   );
 }
-
-/*
-
-// ovo je za korištenje tokena za autorizaciju nakon prijave/registracije
-  const token = localStorage.getItem("token");
-
-fetch("http://localhost:8000/api/me", {
-  headers: {
-    Authorization: `Bearer ${token}`
-  }
-});
-
-*/

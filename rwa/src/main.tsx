@@ -7,8 +7,8 @@ import Home from "./pages/Home";
 import Cocktails from "./pages/Cocktails";
 import Category from "./pages/Category";
 import Login from "./pages/Login";
-
-
+import Register from "./pages/Register";
+import AuthGuard from "./AuthGuard";
 
 import "./style.css";
 import "./login.css";
@@ -22,10 +22,23 @@ const router = createBrowserRouter([
       { path: "kokteli", element: <Cocktails /> },
       { path: "kokteli/:slug", element: <Category /> },
       { path: "o-nama", element: <div className="page"><h2>O nama</h2></div> },
-      
-      { path: "login", element: <Login onClose={() => {}} /> }
-
     ],
+  },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/register",
+    element: <Register />,
+  },
+  {
+    path: "/protected",
+    element: (
+      <AuthGuard>
+        <div className="page"><h2>Zaštićena stranica</h2></div>
+      </AuthGuard>
+    ),
   },
 ]);
 
@@ -34,17 +47,3 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <RouterProvider router={router} />
   </React.StrictMode>
 );
-
-
-/*
-
-// ovo je za korištenje tokena za autorizaciju nakon prijave/registracije
-  const token = localStorage.getItem("token");
-
-fetch("http://localhost:8000/api/me", {
-  headers: {
-    Authorization: `Bearer ${token}`
-  }
-});
-
-*/
