@@ -9,6 +9,7 @@ import Category from "./pages/Category";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import AuthGuard from "./AuthGuard";
+import CocktailDetails from "./pages/CocktailDetails";
 
 import "./style.css";
 import "./login.css";
@@ -19,8 +20,16 @@ const router = createBrowserRouter([
     element: <Layout />,
     children: [
       { index: true, element: <Home /> },
+
+      // svi kokteli
       { path: "kokteli", element: <Cocktails /> },
+
+      // detalji koktela po ID-u (klik na karticu iz liste)
+      { path: "kokteli/:id", element: <CocktailDetails /> },
+
+      // postojeća ruta za kategoriju (ostavljamo kako je bilo)
       { path: "kokteli/:slug", element: <Category /> },
+
       { path: "o-nama", element: <div className="page"><h2>O nama</h2></div> },
     ],
   },
