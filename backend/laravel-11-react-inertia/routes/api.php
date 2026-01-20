@@ -23,6 +23,8 @@ Route::get('/cocktails', [CocktailController::class, 'index']);
 Route::get('/cocktails/search', [CocktailController::class, 'search']);
 Route::get('/cocktails/{id}', [CocktailController::class, 'show']);
 
+Route::get('/search', [SearchController::class, 'index']);
+
 
 // 3 koktela za pocetnu
 use Illuminate\Support\Facades\Cache;
