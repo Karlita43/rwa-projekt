@@ -1,14 +1,19 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import api from "../api";
 import { useNavigate, Link } from "react-router-dom";
+import { LoginContext } from "../LoginContextProvider";
 
 export default function Register() {
+  const { login } = useContext(LoginContext);
+
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [error, setError] = useState("");
+
+   const [isSubmitting, setIsSubmitting] = useState(false); 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,17 +28,44 @@ export default function Register() {
       return;
     }
 
+    setError("");
+    setIsSubmitting(true);
+
     try {
-      await api.post("/register", {
+     const response =  await api.post("/register", {
         name,
         email,
         password,
         password_confirmation: passwordConfirm, // Laravel očekuje ovo polje
       });
-      navigate("/login"); // nakon registracije vodi na login
+
+      const token = response?.data?.token;
+
+      if (!token) {
+        setError("Registracija je uspjela, ali token nije vraćen.");
+        return;
+      }
+      login(token); // opcionalno, može se automatski logirati nakon registracije
+
+
+      navigate("/students", { replace: true }); // nakon registracije vodi na login
     } catch (err: any) {
-      console.error(err);
-      setError(err.response?.data?.message || "Greška kod registracije.");
+      const status = err?.response?.status;
+
+      if (status === 422) {
+        const errors = err?.response?.data?.errors as Record<string, string[]> | undefined;
+
+        const firstMsg =
+          errors && Object.values(errors)[0]?.[0]
+            ? Object.values(errors)[0][0]
+            : "Validacijska greška.";
+
+        setError(firstMsg);
+      } else {
+        setError("Dogodila se greška pri registraciji.");
+      }
+    } finally{
+      setIsSubmitting(false);
     }
   };
 
@@ -47,27 +79,31 @@ export default function Register() {
             placeholder="Ime"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            required
           />
           <input
             type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
           <input
             type="password"
             placeholder="Lozinka"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
           />
           <input
             type="password"
             placeholder="Potvrdi lozinku"
             value={passwordConfirm}
             onChange={(e) => setPasswordConfirm(e.target.value)}
+            required
           />
-          <button type="submit" className="btn-login">
-            Registriraj se
+          <button type="submit" className="btn-login" disabled={isSubmitting}>
+            {isSubmitting ? "Registracija..." : "Registracija"}
           </button>
           {error && <div className="form-error">{error}</div>}
         </form>

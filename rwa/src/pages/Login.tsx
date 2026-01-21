@@ -8,24 +8,49 @@ import { useNavigate, Link } from "react-router-dom";
 export default function Login() {
   const { login } = useContext(LoginContext);
   const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+    setIsSubmitting(true);
     if (!email.trim() || !password.trim()) {
       setError("Molimo ispuni sva polja.");
       return;
     }
-
+    
     try {
       const res = await api.post("/login", { email, password });
+      const token = res?.data?.token;
+
+      if (!token) {
+        setError("Login je uspio, ali token nije vraćen iz API-ja.");
+        return;
+      }
+
       login(res.data.token); // spremi token u context i localStorage
-      navigate("/"); // nakon login vodi na početnu
+      navigate("/profil"); // nakon login vodi na početnu
     } catch (err: any) {
-      console.error(err);
-      setError(err.response?.data?.message || "Neuspješna prijava.");
+      const status = err?.response?.status;
+
+      if (status === 422) {
+        const errors = err?.response?.data?.errors as Record<string, string[]> | undefined;
+
+        const firstMsg =
+          errors && Object.values(errors)[0]?.[0]
+            ? Object.values(errors)[0][0]
+            : "Validacijska greška.";
+
+        setError(firstMsg);
+      } else {
+        setError("Dogodila se greška pri prijavi.");
+      }
+    } finally{
+      setIsSubmitting(false);
     }
   };
 
@@ -46,7 +71,9 @@ export default function Login() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <button type="submit" className="btn-login">Prijavi se</button>
+        <button type="submit" className="btn-login" disabled={isSubmitting}>
+          {isSubmitting ? "Prijavljivanje..." : "Prijavi se"}
+        </button>
         {error && <div className="form-error">{error}</div>}
       </form>
       <p className="modal-hint" >

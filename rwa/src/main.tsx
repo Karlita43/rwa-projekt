@@ -10,6 +10,11 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import AuthGuard from "./AuthGuard";
 import CocktailDetails from "./pages/CocktailDetails";
+import CocktailEdit from "./pages/CocktailEdit";
+import CocktailNew from "./pages/CocktailNew";
+import UserPage from "./pages/User_page";
+
+import LoginContextProvider from "./LoginContextProvider";
 
 import "./style.css";
 import "./login.css";
@@ -31,6 +36,17 @@ const router = createBrowserRouter([
       { path: "kokteli/:slug", element: <Category /> },
 
       { path: "o-nama", element: <div className="page"><h2>O nama</h2></div> },
+
+      // zaštićene rute
+      {
+        path: "kokteli/novo", element: ( <AuthGuard> <CocktailNew /> </AuthGuard>),
+      },
+      {
+        path: "kokteli/:id/uredi", element: ( <AuthGuard> <CocktailEdit /> </AuthGuard> ),
+      },
+      { path: "profil", element: ( <AuthGuard> <UserPage /> </AuthGuard> ),
+      },
+
     ],
   },
   {
@@ -41,18 +57,12 @@ const router = createBrowserRouter([
     path: "/register",
     element: <Register />,
   },
-  {
-    path: "/protected",
-    element: (
-      <AuthGuard>
-        <div className="page"><h2>Zaštićena stranica</h2></div>
-      </AuthGuard>
-    ),
-  },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
+    <LoginContextProvider>
     <RouterProvider router={router} />
+    </LoginContextProvider>
   </React.StrictMode>
 );

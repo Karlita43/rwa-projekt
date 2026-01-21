@@ -1,9 +1,20 @@
 import { Outlet, Link } from "react-router-dom";
 import { useContext } from "react";
 import { LoginContext } from "../LoginContextProvider";
+import api from "../api";
 
 export default function Layout() {
   const { isLoggedIn, logout } = useContext(LoginContext);
+
+  function handleLogout() {
+    api.post("/logout", {}, {
+    headers: {
+    Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }).finally(() => {
+    logout();
+   });
+ }
 
   return (
     <div className="page">
@@ -32,7 +43,7 @@ export default function Layout() {
 
             <div className="nav-auth">
               {isLoggedIn ? (
-                <button onClick={logout} className="nav-link btn-logout">
+                <button onClick={handleLogout} className="nav-link btn-logout">
                   Odjavi se
                 </button>
               ) : (

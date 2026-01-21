@@ -3,14 +3,24 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Api\CocktailController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\CocktailUserController;
 
 use App\Models\Cocktail;
 use Illuminate\Http\Request;
 
+use Illuminate\Support\Facades\Cache;
+
+
 
 //Za zaštićene rute --> nasnije favoriti ili ingredinets
 Route::group(['middleware' => ['auth:sanctum']], function() {
+    Route::post('/cocktails', [CocktailUserController::class, 'store']);
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::delete('/cocktails/{id}', [CocktailUserController::class, 'destroy']);
+    Route::put('/cocktails/{id}', [CocktailUserController::class, 'update']);
+    Route::get('/user/cocktails', [CocktailUserController::class, 'myCocktailsOnly']);
+    Route::get('/user/profile', [CocktailUserController::class, 'profile']);
+
 });
 
 //Autentikacija
@@ -25,9 +35,7 @@ Route::get('/cocktails/{id}', [CocktailController::class, 'show']);
 
 Route::get('/search', [SearchController::class, 'index']);
 
-
-// 3 koktela za pocetnu
-use Illuminate\Support\Facades\Cache;
+// tri koktela na početku stranice
 
 Route::get('/featured-cocktails', function () {
     return Cache::remember('featured_cocktails', now()->addMinutes(10), function () {

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->text('instructions')->nullable();
             $table->string('image_url')->nullable();
+            $table->unsignedInteger('user_id');
         });
     }
 
