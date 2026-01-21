@@ -20,6 +20,16 @@ type Cocktail = {
     ingredients: Ingredient[];
 };
 
+
+function cocktailImageSrc(name: string) {
+  const fileName = name
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "_");
+
+  return `/koktel_slike/${fileName}.jpg`;
+}
+
 export default function CocktailDetails() {
     const { id } = useParams();
     const [cocktail, setCocktail] = useState<Cocktail | null>(null);
@@ -75,18 +85,9 @@ export default function CocktailDetails() {
 
                 {/* LEFT: IMAGE sticky */}
                 <div className="cocktail-left">
-                    {cocktail.image_url ? (
                         <div className="cocktail-image-wrap">
-                            <img
-                                className="cocktail-image"
-                                src={cocktail.image_url}
-                                alt={cocktail.name}
-                                loading="lazy"
-                            />
+                            <img className="cocktail-image" src={cocktailImageSrc(cocktail.name)} alt={cocktail.name} loading="lazy" />
                         </div>
-                    ) : (
-                        <div className="cocktail-image-placeholder">Nema slike</div>
-                    )}
                 </div>
 
                 {/* RIGHT: INGREDIENTS + INSTRUCTIONS */}

@@ -3,6 +3,14 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 
+function cocktailImageSrc(name: string) {
+  const fileName = name
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "_");
+
+  return `/koktel_slike/${fileName}.jpg`;
+}
 
 type Ingredient = {
     name: string;
@@ -76,7 +84,7 @@ export default function Home() {
                             >
                                 <article className="cocktail-card">
                                     <div className="cocktail-media">
-                                        <img src={c.image_url} alt={c.name} loading="lazy" />
+                                        <img src={cocktailImageSrc(c.name)} alt={c.name} loading="lazy" />
                                     </div>
 
                                     <div className="cocktail-body">

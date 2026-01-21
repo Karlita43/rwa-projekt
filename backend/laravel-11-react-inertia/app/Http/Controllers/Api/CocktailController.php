@@ -12,12 +12,13 @@ class CocktailController extends Controller
     public function index()
 {
     return response()->json(
-        Cocktail::query()
-            ->where('name', '!=', 'name')
-            ->where('description', '!=', 'description')
-            ->orderByDesc('id')
-            ->paginate(9)
-    );
+    Cocktail::query()
+        ->where('name', '!=', 'name')
+        ->where('description', '!=', 'description')
+        ->orderByDesc('id')
+        ->paginate(9)
+)->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+ ->header('Pragma', 'no-cache');
 }
 
     // GET /api/cocktails/{id}

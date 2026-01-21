@@ -9,6 +9,17 @@ type Cocktail = {
   image_url: string;
 };
 
+
+
+function cocktailImageSrc(name: string) {
+  const fileName = name
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "_");
+
+  return `/koktel_slike/${fileName}.jpg`;
+}
+
 export default function Cocktails() {
   const [cocktails, setCocktails] = useState<Cocktail[]>([]);
   const [loading, setLoading] = useState(true);
@@ -77,7 +88,11 @@ export default function Cocktails() {
               <Link key={c.id} to={`/kokteli/${c.id}`} className="card-link">
                 <article className="cocktail-card">
                   <div className="cocktail-media">
-                    <img src={c.image_url} alt={c.name} loading="lazy" />
+                    <img
+                      src={cocktailImageSrc(c.name)}
+                      alt={c.name}
+                      loading="lazy"
+                    />
                   </div>
 
                   <div className="cocktail-body">
