@@ -10,12 +10,14 @@ class Cocktail extends Model
 
     // Eksplicitno (nije obavezno, ali je dobra praksa)
     protected $table = 'cocktails';
+    public $timestamps = false;
 
     protected $fillable = [
         'name',
         'description',
         'instructions',
         'image_url',
+        'user_id',
     ];
 
     // Ako tablica NEMA created_at i updated_at, odkomentiraj ovo:

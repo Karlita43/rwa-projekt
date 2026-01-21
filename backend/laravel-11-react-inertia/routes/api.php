@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Api\CocktailController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\CocktailUserController;
+use App\Http\Controllers\Api\IngredientController;
 
 use App\Models\Cocktail;
 use Illuminate\Http\Request;
@@ -20,8 +21,11 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
     Route::put('/cocktails/{id}', [CocktailUserController::class, 'update']);
     Route::get('/user/cocktails', [CocktailUserController::class, 'myCocktailsOnly']);
     Route::get('/user/profile', [CocktailUserController::class, 'profile']);
+    
 
 });
+
+Route::get('/ingredients', [IngredientController::class, 'index']);
 
 //Autentikacija
 Route::post('/login', [AuthController::class, 'login']);

@@ -7,14 +7,20 @@ export default function Layout() {
   const { isLoggedIn, logout } = useContext(LoginContext);
 
   function handleLogout() {
-    api.post("/logout", {}, {
-    headers: {
-    Authorization: "Bearer " + localStorage.getItem("token"),
-        },
-      }).finally(() => {
-    logout();
-   });
- }
+    api
+      .post(
+        "/logout",
+        {},
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+        }
+      )
+      .finally(() => {
+        logout();
+      });
+  }
 
   return (
     <div className="page">
@@ -43,15 +49,19 @@ export default function Layout() {
 
             <div className="nav-auth">
               {isLoggedIn ? (
-                <button onClick={handleLogout} className="nav-link btn-logout">
-                  Odjavi se
-                </button>
-              ) : (
                 <>
-                  <Link to="/login" className="nav-link btn-login">
-                    Prijavi se
+                  <Link to="/profil" className="nav-link">
+                    Moj profil
                   </Link>
+
+                  <button onClick={handleLogout} className="nav-link btn-logout" type="button">
+                    Odjavi se
+                  </button>
                 </>
+              ) : (
+                <Link to="/login" className="nav-link btn-login">
+                  Prijavi se
+                </Link>
               )}
             </div>
           </nav>

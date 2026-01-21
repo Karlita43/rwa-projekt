@@ -85,9 +85,14 @@ export default function CocktailDetails() {
 
                 {/* LEFT: IMAGE sticky */}
                 <div className="cocktail-left">
-                        <div className="cocktail-image-wrap">
-                            <img className="cocktail-image" src={cocktailImageSrc(cocktail.name)} alt={cocktail.name} loading="lazy" />
-                        </div>
+                    <div className="cocktail-image-wrap">
+                        <img
+                        className="cocktail-image"
+                        src={cocktail.image_url ?? cocktailImageSrc(cocktail.name)}
+                        alt={cocktail.name}
+                        loading="lazy"
+                        />
+                    </div>
                 </div>
 
                 {/* RIGHT: INGREDIENTS + INSTRUCTIONS */}

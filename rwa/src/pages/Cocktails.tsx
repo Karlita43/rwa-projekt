@@ -89,7 +89,7 @@ export default function Cocktails() {
                 <article className="cocktail-card">
                   <div className="cocktail-media">
                     <img
-                      src={cocktailImageSrc(c.name)}
+                      src={c.image_url ?? cocktailImageSrc(c.name)}
                       alt={c.name}
                       loading="lazy"
                     />
