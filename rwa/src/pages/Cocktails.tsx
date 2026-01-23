@@ -6,18 +6,12 @@ type Cocktail = {
   id: number;
   name: string;
   description?: string;
-  image_url: string;
+  image_url: string | null;
 };
 
-
-
-function cocktailImageSrc(name: string) {
-  const fileName = name
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, "_");
-
-  return `/koktel_slike/${fileName}.jpg`;
+function resolveCocktailImage(image_url: string | null) {
+  if (image_url && /^https?:\/\//i.test(image_url)) return image_url;
+  return image_url ? `/koktel_slike/${image_url}` : "/koktel_slike/placeholder.jpg";
 }
 
 export default function Cocktails() {
@@ -38,7 +32,11 @@ export default function Cocktails() {
         )}&page=${page}`
       : `http://127.0.0.1:8000/api/cocktails?page=${page}`;
 
-    fetch(url)
+    const token = localStorage.getItem("token");
+    const headers: Record<string, string> = {};
+    if (token) headers.Authorization = `Bearer ${token}`;
+
+    fetch(url, { headers })
       .then((r) => r.json())
       .then((res) => {
         setCocktails(res.data ?? []);
@@ -66,7 +64,7 @@ export default function Cocktails() {
           value={q}
           onChange={(e) => {
             setQ(e.target.value);
-            setPage(1); // bitno: kad tražiš, kreni od 1. stranice
+            setPage(1);
           }}
           placeholder="Pretraži koktele..."
           style={{
@@ -89,7 +87,7 @@ export default function Cocktails() {
                 <article className="cocktail-card">
                   <div className="cocktail-media">
                     <img
-                      src={c.image_url ?? cocktailImageSrc(c.name)}
+                      src={resolveCocktailImage(c.image_url)}
                       alt={c.name}
                       loading="lazy"
                     />
@@ -97,10 +95,7 @@ export default function Cocktails() {
 
                   <div className="cocktail-body">
                     <h3>{c.name}</h3>
-
-                    {c.description && (
-                      <p className="cocktail-desc">{c.description}</p>
-                    )}
+                    {c.description && <p className="cocktail-desc">{c.description}</p>}
                   </div>
                 </article>
               </Link>

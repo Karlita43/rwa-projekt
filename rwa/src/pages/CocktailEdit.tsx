@@ -81,7 +81,7 @@ export default function CocktailEdit() {
         if (!cancelled) setIngredientOptions(ingList);
 
         // 2) dohvat koktela
-        const cRes = await api.get(`/cocktails/${id}`);
+        const cRes = await api.get(`/cocktails/${id}`, authHeaders);
         const c = cRes.data as CocktailResponse;
 
         if (cancelled) return;

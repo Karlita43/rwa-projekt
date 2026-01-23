@@ -11,6 +11,7 @@ class Cocktail extends Model
     // Eksplicitno (nije obavezno, ali je dobra praksa)
     protected $table = 'cocktails';
     public $timestamps = false;
+    protected $appends = ['image_url_resolved'];
 
     protected $fillable = [
         'name',
@@ -31,5 +32,20 @@ class Cocktail extends Model
             'cocktail_id',
             'ingredient_id'
         )->withPivot('quantity', 'unit'); 
+    }
+
+     public function getImageUrlResolvedAttribute()
+    {
+        $val = $this->image_url; // kolona iz baze
+
+        if (!$val) return null;
+
+        // Ako je već web URL
+        if (preg_match('#^https?://#i', $val)) {
+            return $val;
+        }
+
+        // Ako je filename (mojito.jpg) -> public/koktel_slike/mojito.jpg
+        return asset('koktel_slike/' . ltrim($val, '/'));
     }
 }

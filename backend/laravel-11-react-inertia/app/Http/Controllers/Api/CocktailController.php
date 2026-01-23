@@ -8,51 +8,71 @@ use Illuminate\Http\Request;
 
 class CocktailController extends Controller
 {
-    // GET /api/cocktails
-    public function index()
-{
-    return response()->json(
-    Cocktail::query()
-        ->where('name', '!=', 'name')
-        ->where('description', '!=', 'description')
-        ->orderByDesc('id')
-        ->paginate(9)
-)->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
- ->header('Pragma', 'no-cache');
-}
-
-    // GET /api/cocktails/{id}
-    public function show($id)
-{
-    $cocktail = Cocktail::with('ingredients')->findOrFail($id);
-    return response()->json($cocktail);
-}
-
-    public function search(Request $request)
-{
-    $q = trim((string) $request->query('q', ''));
-    $ingredient = trim((string) $request->query('ingredient', ''));
-
-    $query = Cocktail::query();
-
-    // Search po tekstu (ime + opis)
-    if ($q !== '') {
-        $query->where(function ($sub) use ($q) {
-            $sub->where('name', 'like', "%{$q}%")
-                ->orWhere('description', 'like', "%{$q}%");
+    private function visibleTo($query, ?int $userId)
+    {
+        return $query->where(function ($q) use ($userId) {
+            $q->whereNull('user_id');
+            if ($userId) {
+                $q->orWhere('user_id', $userId);
+            }
         });
     }
 
-    // (Opcionalno) Search po ingredientu/kategoriji
-    if ($ingredient !== '') {
-        $query->whereHas('ingredients', function ($sub) use ($ingredient) {
-            $sub->where('name', 'like', "%{$ingredient}%")
-                ->orWhere('category', 'like', "%{$ingredient}%");
-        })->with('ingredients');
+    // GET /api/cocktails
+    public function index(Request $request)
+    {
+        $userId = optional(auth('sanctum')->user())->id; // ili: optional($request->user('sanctum'))->id
+
+        $query = Cocktail::query()->orderByDesc('id');
+
+        $this->visibleTo($query, $userId);
+
+        return response()->json(
+            $query->paginate(9)
+        )->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+         ->header('Pragma', 'no-cache');
     }
 
-    return response()->json(
-        $query->orderBy('name')->paginate(9)->withQueryString()
-    );
-}
+    // GET /api/cocktails/{id}
+    public function show(Request $request, $id)
+    {
+        $userId = optional(auth('sanctum')->user())->id;
+
+        $query = Cocktail::with('ingredients');
+        $this->visibleTo($query, $userId);
+
+        $cocktail = $query->findOrFail($id);
+
+        return response()->json($cocktail);
+    }
+
+    // GET /api/cocktails/search
+    public function search(Request $request)
+    {
+        $userId = optional(auth('sanctum')->user())->id;
+
+        $q = trim((string) $request->query('q', ''));
+        $ingredient = trim((string) $request->query('ingredient', ''));
+
+        $query = Cocktail::query();
+        $this->visibleTo($query, $userId);
+
+        if ($q !== '') {
+            $query->where(function ($sub) use ($q) {
+                $sub->where('name', 'like', "%{$q}%")
+                    ->orWhere('description', 'like', "%{$q}%");
+            });
+        }
+
+        if ($ingredient !== '') {
+            $query->whereHas('ingredients', function ($sub) use ($ingredient) {
+                $sub->where('name', 'like', "%{$ingredient}%")
+                    ->orWhere('category', 'like', "%{$ingredient}%");
+            })->with('ingredients');
+        }
+
+        return response()->json(
+            $query->orderBy('name')->paginate(9)->withQueryString()
+        );
+    }
 }

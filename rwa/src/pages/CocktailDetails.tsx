@@ -12,23 +12,26 @@ type Ingredient = {
 };
 
 type Cocktail = {
-    id: number;
-    name: string;
-    description?: string;
-    instructions?: string;
-    image_url?: string;
-    ingredients: Ingredient[];
+  id: number;
+  name: string;
+  description?: string;
+  instructions?: string;
+  image_url?: string | null;
+  ingredients: Ingredient[];
 };
 
 
-function cocktailImageSrc(name: string) {
-  const fileName = name
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, "_");
+function resolveCocktailImage(image_url: string | undefined | null) {
+  if (!image_url) return "/koktel_slike/placeholder.jpg"; // ako ikad fali
 
-  return `/koktel_slike/${fileName}.jpg`;
+  // user kokteli (web url)
+  if (/^https?:\/\//i.test(image_url)) return image_url;
+
+  // lokalni kokteli (filename npr. mojito.jpg)
+  return `/koktel_slike/${image_url.replace(/^\/+/, "")}`;
 }
+
+
 
 export default function CocktailDetails() {
     const { id } = useParams();
@@ -36,20 +39,25 @@ export default function CocktailDetails() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!id) return;
+  if (!id) return;
 
-        setLoading(true);
-        fetch(`http://127.0.0.1:8000/api/cocktails/${id}`)
-            .then((r) => {
-                if (!r.ok) throw new Error("Cocktail not found");
-                return r.json();
-            })
-            .then((data) => setCocktail(data))
-            .catch((err) => {
-                console.error("Cocktail details error:", err);
-                setCocktail(null);
-            })
-            .finally(() => setLoading(false));
+    setLoading(true);
+
+    const token = localStorage.getItem("token");
+    const headers: Record<string, string> = {};
+    if (token) headers.Authorization = `Bearer ${token}`;
+
+    fetch(`http://127.0.0.1:8000/api/cocktails/${id}`, { headers })
+        .then((r) => {
+        if (!r.ok) throw new Error("Cocktail not found");
+        return r.json();
+        })
+        .then((data) => setCocktail(data))
+        .catch((err) => {
+        console.error("Cocktail details error:", err);
+        setCocktail(null);
+        })
+        .finally(() => setLoading(false));
     }, [id]);
 
     if (loading) {
@@ -88,7 +96,7 @@ export default function CocktailDetails() {
                     <div className="cocktail-image-wrap">
                         <img
                         className="cocktail-image"
-                        src={cocktail.image_url ?? cocktailImageSrc(cocktail.name)}
+                        src={resolveCocktailImage(cocktail.image_url)}
                         alt={cocktail.name}
                         loading="lazy"
                         />
