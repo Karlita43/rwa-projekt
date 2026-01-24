@@ -13,6 +13,8 @@ import CocktailDetails from "./pages/CocktailDetails";
 import CocktailEdit from "./pages/CocktailEdit";
 import CocktailNew from "./pages/CocktailNew";
 import UserPage from "./pages/User_page";
+import About from "./pages/About";
+
 
 import LoginContextProvider from "./LoginContextProvider";
 
@@ -35,7 +37,7 @@ const router = createBrowserRouter([
       // postojeća ruta za kategoriju (ostavljamo kako je bilo)
       { path: "kokteli/:slug", element: <Category /> },
 
-      { path: "o-nama", element: <div className="page"><h2>O nama</h2></div> },
+      { path: "o-nama", element: <About /> },
 
       // zaštićene rute
       {

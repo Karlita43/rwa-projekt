@@ -1,0 +1,95 @@
+
+/*kartice i sve ostalo se vuce iz featured_cocktails
+ali su tu dodane stvari na user pageu uređene*/
+
+/* AKCIJE NA USER KARTICI */
+.card-actions {
+    display: flex;
+    gap: 10px;
+    padding: 0 14px 16px;
+}
+
+/* manji "secondary" gumb */
+.btn-secondary {
+    padding: 8px 16px;
+    border-radius: 999px;
+
+    font-size: 14px;
+    font-weight: 650;
+
+    text-decoration: none;
+    color: #2b1f1b;
+
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(43, 31, 27, 0.22);
+
+    transition: transform 0.18s ease, filter 0.18s ease, background 0.18s ease;
+}
+
+.btn-secondary:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+}
+
+/* opasna akcija – brisanje */
+.btn-danger {
+    margin-left: auto;
+
+    padding: 8px 16px;
+    border-radius: 999px;
+
+    font-size: 14px;
+    font-weight: 650;
+
+    background: linear-gradient(180deg, #b94a48, #8f2f2f);
+    color: #fff;
+
+    border: 1px solid rgba(120, 30, 30, 0.45);
+
+    box-shadow:
+        0 6px 14px rgba(0, 0, 0, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+
+    cursor: pointer;
+    transition: transform 0.18s ease, filter 0.18s ease;
+}
+
+.btn-danger:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.08);
+}
+
+.btn-danger:active {
+    transform: translateY(0);
+}
+
+/* USER PAGE HEADER */
+.user-name {
+    color: #6f3a3a;
+}
+
+.user-title {
+    margin: 0;
+
+}
+
+.user-subtitle {
+    margin-top: 24px;
+    margin-bottom: 18px;
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    color: #2b1f1b;
+    opacity: 1;
+    position: relative;
+}
+
+.user-subtitle::after {
+    content: "";
+    display: block;
+    width: 64px;
+    height: 3px;
+    margin-top: 8px;
+    border-radius: 999px;
+    background: rgba(111, 58, 58, 0.45);
+}

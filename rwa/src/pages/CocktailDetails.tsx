@@ -12,26 +12,19 @@ type Ingredient = {
 };
 
 type Cocktail = {
-  id: number;
-  name: string;
-  description?: string;
-  instructions?: string;
-  image_url?: string | null;
-  ingredients: Ingredient[];
+    id: number;
+    name: string;
+    description?: string;
+    instructions?: string;
+    image_url?: string | null;
+    ingredients: Ingredient[];
 };
 
-
 function resolveCocktailImage(image_url: string | undefined | null) {
-  if (!image_url) return "/koktel_slike/placeholder.jpg"; // ako ikad fali
-
-  // user kokteli (web url)
-  if (/^https?:\/\//i.test(image_url)) return image_url;
-
-  // lokalni kokteli (filename npr. mojito.jpg)
-  return `/koktel_slike/${image_url.replace(/^\/+/, "")}`;
+    if (!image_url) return "/koktel_slike/placeholder.jpg";
+    if (/^https?:\/\//i.test(image_url)) return image_url;
+    return `/koktel_slike/${image_url.replace(/^\/+/, "")}`;
 }
-
-
 
 export default function CocktailDetails() {
     const { id } = useParams();
@@ -39,25 +32,25 @@ export default function CocktailDetails() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-  if (!id) return;
+        if (!id) return;
 
-    setLoading(true);
+        setLoading(true);
 
-    const token = localStorage.getItem("token");
-    const headers: Record<string, string> = {};
-    if (token) headers.Authorization = `Bearer ${token}`;
+        const token = localStorage.getItem("token");
+        const headers: Record<string, string> = {};
+        if (token) headers.Authorization = `Bearer ${token}`;
 
-    fetch(`http://127.0.0.1:8000/api/cocktails/${id}`, { headers })
-        .then((r) => {
-        if (!r.ok) throw new Error("Cocktail not found");
-        return r.json();
-        })
-        .then((data) => setCocktail(data))
-        .catch((err) => {
-        console.error("Cocktail details error:", err);
-        setCocktail(null);
-        })
-        .finally(() => setLoading(false));
+        fetch(`http://127.0.0.1:8000/api/cocktails/${id}`, { headers })
+            .then((r) => {
+                if (!r.ok) throw new Error("Cocktail not found");
+                return r.json();
+            })
+            .then((data) => setCocktail(data))
+            .catch((err) => {
+                console.error("Cocktail details error:", err);
+                setCocktail(null);
+            })
+            .finally(() => setLoading(false));
     }, [id]);
 
     if (loading) {
@@ -73,7 +66,9 @@ export default function CocktailDetails() {
             <section className="cocktail-details">
                 <h1 className="cocktail-title">Koktel nije pronađen</h1>
                 <div className="cocktail-actions">
-                    <Link to="/kokteli" className="btn">← Svi kokteli</Link>
+                    <Link to="/kokteli" className="btn">
+                        ← Svi kokteli
+                    </Link>
                 </div>
             </section>
         );
@@ -82,23 +77,25 @@ export default function CocktailDetails() {
     return (
         <section className="cocktail-details">
             <div className="cocktail-layout">
-
                 {/* HEADER (preko oba stupca) */}
                 <header className="cocktail-header">
-                    <h1 className="cocktail-title">{cocktail.name}</h1>
-                    {cocktail.description && (
-                        <p className="cocktail-description">{cocktail.description}</p>
-                    )}
+                    <div className="cocktail-header-box">
+                        <h1 className="cocktail-title">{cocktail.name}</h1>
+
+                        {cocktail.description && (
+                            <p className="cocktail-description">{cocktail.description}</p>
+                        )}
+                    </div>
                 </header>
 
                 {/* LEFT: IMAGE sticky */}
                 <div className="cocktail-left">
                     <div className="cocktail-image-wrap">
                         <img
-                        className="cocktail-image"
-                        src={resolveCocktailImage(cocktail.image_url)}
-                        alt={cocktail.name}
-                        loading="lazy"
+                            className="cocktail-image"
+                            src={resolveCocktailImage(cocktail.image_url)}
+                            alt={cocktail.name}
+                            loading="lazy"
                         />
                     </div>
                 </div>
@@ -140,8 +137,9 @@ export default function CocktailDetails() {
                     </div>
 
                     <div className="cocktail-actions">
-                        {/* vucem btn style iz style.css */}
-                        <Link to="/kokteli" className="btn">← Svi kokteli</Link> 
+                        <Link to="/kokteli" className="btn">
+                            ← Svi kokteli
+                        </Link>
                     </div>
                 </div>
             </div>

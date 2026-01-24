@@ -271,6 +271,19 @@ body::before {
   padding: 16px 32px;
 }
 
+/* Header: "Prijavi se" ne smije imati shine efekte, vuce iz drugog cssa */
+.site-header .btn-login::before,
+.site-header .btn-login::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* I za svaki slučaj: da ništa ne može izlazit iz gumba */
+.site-header .btn-login {
+  position: relative;
+  overflow: hidden;
+}
+
 /* desna slika */
 .hero-media {
   border-radius: 999px 24px 24px 999px;

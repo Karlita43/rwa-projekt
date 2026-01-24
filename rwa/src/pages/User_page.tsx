@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import api from "../api";
 import { LoginContext } from "../LoginContextProvider";
 import "../featured_cocktails.css";
+import "../user_page.css";
 
 type UserData = {
   username: string;
@@ -105,24 +106,19 @@ export default function User_page() {
           alignItems: "baseline",
         }}
       >
+
         <div>
-          <h2>Vaši kokteli</h2>
-          <p style={{ marginTop: 6, opacity: 0.8 }}>
-            Pozdrav {userData?.username ? <b>{userData.username}</b> : ""}!
+          <h2 className="user-title">
+            Pozdrav, <span className="user-name">{userData?.username}</span> 👋
+          </h2>
+          <p className="user-subtitle">
+            Vaši kokteli
           </p>
+
         </div>
 
-        <Link
-          to="/kokteli/novo"
-          style={{
-            padding: ".6rem .9rem",
-            borderRadius: 12,
-            border: "1px solid rgba(0,0,0,.12)",
-            textDecoration: "none",
-            height: "fit-content",
-          }}
-        >
-          + Dodaj novi
+        <Link to="/kokteli/novo" className="btn">
+          🍸 Dodaj koktel
         </Link>
       </div>
 
@@ -150,15 +146,15 @@ export default function User_page() {
                 </div>
               </Link>
 
-              <div style={{ display: "flex", gap: 10, padding: "0 14px 14px" }}>
-                <Link to={`/kokteli/${c.id}/uredi`} style={{ textDecoration: "none" }}>
+              <div className="card-actions">
+                <Link to={`/kokteli/${c.id}/uredi`} className="btn-secondary">
                   Uredi
                 </Link>
 
                 <button
                   type="button"
                   onClick={() => handleDelete(c.id)}
-                  style={{ marginLeft: "auto" }}
+                  className="btn-danger"
                 >
                   Obriši
                 </button>

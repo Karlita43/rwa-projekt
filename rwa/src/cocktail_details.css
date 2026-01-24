@@ -17,10 +17,37 @@
     align-items: start;
 }
 
-/* HEADER ide gore preko oba stupca */
+
 .cocktail-header {
     grid-area: header;
-    max-width: 980px;
+    width: 100%;
+    max-width: none;
+}
+
+
+.cocktail-header-box {
+    width: 100%;
+    max-width: none;
+    background: rgba(255, 250, 243, 0.85);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 22px;
+    padding: 1.6rem 2rem;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.08);
+}
+
+/* naslov */
+.cocktail-title {
+    margin: 0 0 0.6rem;
+    font-size: 2rem;
+    line-height: 1.2;
+}
+
+/* kratki opis */
+.cocktail-description {
+    margin: 0;
+    max-width: 52ch;
+    line-height: 1.6;
+    opacity: 0.9;
 }
 
 /* LEFT = samo slika (sticky) */
@@ -29,21 +56,6 @@
     position: sticky;
     top: 1.25rem;
     align-self: start;
-}
-
-/* header na lijevoj strani */
-.cocktail-header-left {
-    margin-bottom: 1rem;
-}
-
-/* RIGHT = sastojci/instrukcije */
-.cocktail-right {
-    grid-area: right;
-}
-
-/* opcionalno: malo suzi opis da lijepo izgleda */
-.cocktail-description {
-    max-width: 38ch;
 }
 
 .cocktail-image-wrap {
@@ -70,6 +82,9 @@
 }
 
 /* RIGHT */
+.cocktail-right {
+    grid-area: right;
+}
 
 .cocktail-sections {
     display: grid;

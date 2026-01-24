@@ -1,0 +1,113 @@
+.about-page {
+    padding: 32px 18px;
+}
+
+/* TEKST BLOK: samo da bude čitljiv na teksturi */
+.about-text-block {
+    max-width: 980px;
+    margin: 0 auto;
+
+    background: rgba(250, 246, 241, 0.92);
+    border: 1px solid rgba(43, 31, 27, 0.14);
+    padding: 26px 30px;
+    border-radius: 18px;
+
+    box-shadow:
+            0 12px 28px rgba(0, 0, 0, 0.10),
+            inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.about-title {
+    margin: 0 0 10px;
+    font-size: 34px;
+    line-height: 1.1;
+}
+
+.about-lead {
+    margin: 0 0 14px;
+    opacity: 0.85;
+    line-height: 1.6;
+}
+
+.about-text-block p {
+    color: #2f2521;
+    line-height: 1.75;
+    font-size: 15.5px;
+}
+
+.about-text-block h2 {
+    margin-top: 0;
+    color: #1f1613;
+}
+
+.about-text-block b {
+    color: #6f3a3a;
+    font-weight: 600;
+}
+
+.about-text-block p:last-of-type {
+    margin-bottom: 0;
+}
+
+.about-subtitle {
+    margin: 18px 0 10px;
+    font-size: 18px;
+}
+
+.about-list {
+    margin: 0;
+    padding-left: 18px;
+    line-height: 1.75;
+}
+
+.about-list li {
+    margin: 4px 0;
+}
+
+/* SLIKA ISPOD: ostaje “free”, ali centrirana i lijepo sjedi */
+.about-image-wrap {
+    max-width: 980px;
+    margin: 22px auto 0;
+}
+
+.about-image {
+    width: 100%;
+    display: block;
+    border-radius: 16px;
+
+    /* da pixelart izgleda pixelasto */
+    image-rendering: pixelated;
+
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.16);
+}
+
+.about-caption {
+    margin: 12px 0 0;
+    text-align: center;
+
+    padding: 6px 14px;
+    font-size: 13px;
+    color: #2f2521;
+
+    background: rgba(250, 246, 241, 0.88);
+    border-radius: 999px;
+
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* mobile */
+@media (max-width: 640px) {
+    .about-text-block {
+        padding: 18px 16px;
+    }
+
+    .about-title {
+        font-size: 28px;
+    }
+
+    .about-subtitle {
+        font-size: 16px;
+    }
+}
