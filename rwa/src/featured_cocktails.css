@@ -7,6 +7,7 @@
     /* 48px lijevo + 48px desno */
     margin: 4rem auto 0;
 }
+
 .featured-head {
     margin-bottom: 1.5rem;
 }
@@ -80,7 +81,6 @@
     line-height: 1.5;
     color: #444;
 }
-
 
 /* HOWER PREKO KARTICE */
 .card-link {
@@ -185,3 +185,183 @@
     font-weight: 700;
 }
 
+/* ========================================= */
+/* ===== HOME CATEGORIES (featured cards) ==== */
+/* ========================================= */
+
+/* ===== HOME CATEGORIES (stacked carousel - featured style cards) ===== */
+.home-cats {
+    margin: 2.6rem auto 3.2rem;
+    max-width: 1100px;
+    padding: 0 1rem;
+}
+
+.home-cats-head {
+    margin-bottom: 1.2rem;
+}
+
+.home-cats-head h2 {
+    margin: 0;
+}
+
+/* stage: sprječava rezanje i horizontal scroll */
+.cats-stage {
+    position: relative;
+    height: 340px;
+    /* dovoljno za sliku + tekst */
+    overflow: hidden;
+    padding: 12px;
+    border-radius: 22px;
+    /* da rub bude čist */
+}
+
+/* link wrapper (pozicioniranje u carouselu) */
+.cat-card {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(520px, 92vw);
+    transform: translate(-50%, -50%) translateX(calc(var(--offset) * 360px)) scale(var(--scale));
+    opacity: var(--opacity);
+    z-index: var(--z);
+
+    text-decoration: none;
+    color: inherit;
+    transition: transform 220ms ease, opacity 220ms ease;
+}
+
+/* skrivamo sve osim -1/0/+1 */
+.cat-card.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* klik samo na aktivnu karticu */
+.cat-card {
+    pointer-events: none;
+}
+
+.cat-card.is-active {
+    pointer-events: auto;
+}
+
+/* kartica (kao featured kokteli) */
+.cat-card-inner {
+    border-radius: 22px;
+    overflow: hidden;
+    /* KLJUČ: slika i kartica budu zaobljene */
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.cat-card.is-active .cat-card-inner {
+    background: rgba(255, 255, 255, 0.86);
+}
+
+/* slika */
+.cat-media {
+    height: 200px;
+    overflow: hidden;
+}
+
+.cat-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* overlay zatamnjenje za NEaktivne (da izgledaju prozirnije) */
+.cat-card:not(.is-active) .cat-media {
+    position: relative;
+}
+
+.cat-card:not(.is-active) .cat-media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.55);
+}
+
+/* tekst */
+.cat-body {
+    padding: 1rem 1.1rem 1.1rem;
+}
+
+.cat-name {
+    font-weight: 900;
+    font-size: 1.25rem;
+    line-height: 1.1;
+}
+
+.cat-link {
+    margin-top: 0.55rem;
+    opacity: 0.85;
+}
+
+/* dots */
+.cats-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 0.85rem;
+}
+
+.dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 999px;
+    border: 0;
+    background: rgba(0, 0, 0, 0.18);
+    cursor: pointer;
+}
+
+.dot.active {
+    width: 20px;
+    background: rgba(0, 0, 0, 0.34);
+}
+
+/* strelice ispod dots i centrirane */
+.home-cats-controls {
+    display: flex;
+    justify-content: center;
+    gap: 0.7rem;
+    margin-top: 0.9rem;
+}
+
+.cat-arrow {
+    width: 52px;
+    height: 46px;
+    border-radius: 14px;
+    border: 1px solid rgba(0, 0, 0, 0.10);
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(8px);
+    cursor: pointer;
+    font-size: 26px;
+    line-height: 1;
+    display: grid;
+    place-items: center;
+}
+
+/* responsive: manji offset da ništa ne reže */
+@media (max-width: 900px) {
+    .cat-card {
+        transform: translate(-50%, -50%) translateX(calc(var(--offset) * 280px)) scale(var(--scale));
+        width: min(480px, 92vw);
+    }
+}
+
+@media (max-width: 520px) {
+    .cats-stage {
+        height: 320px;
+    }
+
+    .cat-media {
+        height: 175px;
+    }
+
+    .cat-card {
+        transform: translate(-50%, -50%) translateX(calc(var(--offset) * 235px)) scale(var(--scale));
+        width: 94vw;
+    }
+}

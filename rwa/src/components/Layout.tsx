@@ -6,6 +6,16 @@ import api from "../api";
 export default function Layout() {
   const { isLoggedIn, logout } = useContext(LoginContext);
 
+  const categories = [
+    { label: "Rum", slug: "rum" },
+    { label: "Votka", slug: "votka" },
+    { label: "Gin", slug: "gin" },
+    { label: "Tequila", slug: "tekila" },
+    { label: "Sok", slug: "sok" },
+    { label: "Kava", slug: "kava" },
+    { label: "Bezalkoholni", slug: "bezalkoholno" },
+  ];
+
   function handleLogout() {
     api
       .post(
@@ -17,9 +27,7 @@ export default function Layout() {
           },
         }
       )
-      .finally(() => {
-        logout();
-      });
+      .finally(() => logout());
   }
 
   return (
@@ -36,10 +44,13 @@ export default function Layout() {
               <Link className="dropdown-btn" to="/kokteli">
                 Kokteli <span className="chev">▾</span>
               </Link>
+
               <div className="dropdown-menu">
-                <Link to="/kokteli/rum">Rum</Link>
-                <Link to="/kokteli/vodka">Vodka</Link>
-                <Link to="/kokteli/gin">Gin</Link>
+                {categories.map((cat) => (
+                  <Link key={cat.slug} to={`/kategorija/${cat.slug}`}>
+                    {cat.label}
+                  </Link>
+                ))}
               </div>
             </div>
 
@@ -54,7 +65,11 @@ export default function Layout() {
                     Moj profil
                   </Link>
 
-                  <button onClick={handleLogout} className="nav-link btn-logout" type="button">
+                  <button
+                    onClick={handleLogout}
+                    className="nav-link btn-logout"
+                    type="button"
+                  >
                     Odjavi se
                   </button>
                 </>

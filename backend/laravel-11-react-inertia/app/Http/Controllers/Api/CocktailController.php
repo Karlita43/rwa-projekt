@@ -21,10 +21,9 @@ class CocktailController extends Controller
     // GET /api/cocktails
     public function index(Request $request)
     {
-        $userId = optional(auth('sanctum')->user())->id; // ili: optional($request->user('sanctum'))->id
+        $userId = optional(auth('sanctum')->user())->id;
 
         $query = Cocktail::query()->orderByDesc('id');
-
         $this->visibleTo($query, $userId);
 
         return response()->json(
@@ -74,5 +73,24 @@ class CocktailController extends Controller
         return response()->json(
             $query->orderBy('name')->paginate(9)->withQueryString()
         );
+    }
+
+    // GET /api/cocktails/category/{category}
+    public function byIngredientCategory(string $category)
+    {
+        $userId = optional(auth('sanctum')->user())->id;
+
+        $query = Cocktail::query();
+        $this->visibleTo($query, $userId);
+
+        $cocktails = $query
+            ->whereHas('ingredients', function ($q) use ($category) {
+                $q->where('category', $category);
+            })
+            ->with('ingredients:id,name,category')
+            ->orderBy('name')
+            ->get();
+
+        return response()->json($cocktails);
     }
 }

@@ -35,7 +35,8 @@ const router = createBrowserRouter([
       { path: "kokteli/:id", element: <CocktailDetails /> },
 
       // postojeća ruta za kategoriju (ostavljamo kako je bilo)
-      { path: "kokteli/:slug", element: <Category /> },
+      { path: "kategorija/:slug", element: <Category /> },
+
 
       { path: "o-nama", element: <About /> },
 
