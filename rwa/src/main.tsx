@@ -15,6 +15,9 @@ import CocktailNew from "./pages/CocktailNew";
 import UserPage from "./pages/User_page";
 import About from "./pages/About";
 
+import TidalCallback from "./pages/TidalCallback";
+
+
 
 import LoginContextProvider from "./LoginContextProvider";
 
@@ -26,31 +29,22 @@ const router = createBrowserRouter([
     path: "/",
     element: <Layout />,
     children: [
-      { index: true, element: <Home /> },
+  { index: true, element: <Home /> },
 
-      // svi kokteli
-      { path: "kokteli", element: <Cocktails /> },
+  { path: "kokteli", element: <Cocktails /> },
+  { path: "kokteli/:id", element: <CocktailDetails /> },
+  { path: "kategorija/:slug", element: <Category /> },
+  { path: "o-nama", element: <About /> },
 
-      // detalji koktela po ID-u (klik na karticu iz liste)
-      { path: "kokteli/:id", element: <CocktailDetails /> },
+  { path: "auth/tidal/callback", element: <TidalCallback /> },
 
-      // postojeća ruta za kategoriju (ostavljamo kako je bilo)
-      { path: "kategorija/:slug", element: <Category /> },
+      //zaštićene rute - samo za prijavljene korisnike
+  { path: "kokteli/novo", element: (<AuthGuard><CocktailNew /></AuthGuard>) },
+  { path: "kokteli/:id/uredi", element: (<AuthGuard><CocktailEdit /></AuthGuard>) },
+  { path: "profil", element: (<AuthGuard><UserPage /></AuthGuard>) },
 
-
-      { path: "o-nama", element: <About /> },
-
-      // zaštićene rute
-      {
-        path: "kokteli/novo", element: ( <AuthGuard> <CocktailNew /> </AuthGuard>),
-      },
-      {
-        path: "kokteli/:id/uredi", element: ( <AuthGuard> <CocktailEdit /> </AuthGuard> ),
-      },
-      { path: "profil", element: ( <AuthGuard> <UserPage /> </AuthGuard> ),
-      },
-
-    ],
+  { path: "logout", element: (<AuthGuard><Home /></AuthGuard>) },
+]
   },
   {
     path: "/login",

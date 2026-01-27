@@ -26,6 +26,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'tidal_user_id',
+        'tidal_refresh_token',
     ];
 
     /**

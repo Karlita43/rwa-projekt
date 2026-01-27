@@ -1,10 +1,11 @@
-import { Outlet, Link } from "react-router-dom";
+import { Outlet, Link, useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { LoginContext } from "../LoginContextProvider";
 import api from "../api";
 
 export default function Layout() {
   const { isLoggedIn, logout } = useContext(LoginContext);
+  const navigate = useNavigate();
 
   const categories = [
     { label: "Rum", slug: "rum" },
@@ -27,7 +28,11 @@ export default function Layout() {
           },
         }
       )
-      .finally(() => logout());
+      .finally(() => {
+        logout(); // pretpostavka: ovo briše token + stanje
+        navigate("/login", { replace: true });
+      });
+
   }
 
   return (

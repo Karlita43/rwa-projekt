@@ -5,7 +5,7 @@ use App\Http\Controllers\Api\CocktailController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\CocktailUserController;
 use App\Http\Controllers\Api\IngredientController;
-
+use App\Http\Controllers\Api\TidalAuthController;
 use App\Models\Cocktail;
 use Illuminate\Http\Request;
 
@@ -21,13 +21,21 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
     Route::put('/cocktails/{id}', [CocktailUserController::class, 'update']);
     Route::get('/user/cocktails', [CocktailUserController::class, 'myCocktailsOnly']);
     Route::get('/user/profile', [CocktailUserController::class, 'profile']);
+    Route::get('/user/favorites', [CocktailUserController::class, 'favorites']);
+    Route::post('/cocktails/{id}/favorite', [CocktailUserController::class, 'toggleFavorite']);
     
 
 });
 
 Route::get('/ingredients', [IngredientController::class, 'index']);
 
-//Autentikacija
+
+
+
+// TIDAL OAuth (NE ide u auth:sanctum group)
+Route::get('/auth/tidal/redirect', [TidalAuthController::class, 'redirect']);
+Route::get('/auth/tidal/callback', [TidalAuthController::class, 'callback']);
+
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 

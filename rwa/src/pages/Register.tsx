@@ -48,7 +48,7 @@ export default function Register() {
       login(token); // opcionalno, može se automatski logirati nakon registracije
 
 
-      navigate("/students", { replace: true }); // nakon registracije vodi na login
+      navigate("/profil", { replace: true }); // nakon registracije vodi na login
     } catch (err: any) {
       const status = err?.response?.status;
 

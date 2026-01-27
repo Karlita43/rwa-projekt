@@ -1,7 +1,6 @@
 import { createContext, useState,type ReactNode} from "react";
 
 
-
 type LoginContextType = {
   isLoggedIn: boolean;
   login: (token: string) => void;

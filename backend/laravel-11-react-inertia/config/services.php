@@ -35,4 +35,14 @@ return [
         ],
     ],
 
+   'tidal' => [
+  'client_id' => env('TIDAL_CLIENT_ID'),
+  'client_secret' => env('TIDAL_CLIENT_SECRET'),
+  'redirect_uri' => env('TIDAL_REDIRECT_URI'),
+  'frontend_url' => env('FRONTEND_URL', 'http://localhost:5173'),
+  'country_code' => env('TIDAL_COUNTRY_CODE', 'HR'),
+],
+
+
+
 ];

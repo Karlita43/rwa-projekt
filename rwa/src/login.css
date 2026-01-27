@@ -213,3 +213,46 @@
     text-align: center;
 }
 
+
+/* karla  je dodala css za tidal button */
+.social-login {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.social-divider {
+  margin: 0.75rem 0;
+  font-size: 0.85rem;
+  color: #777;
+}
+
+.btn-social {
+  min-width: 220px;
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px; /* glatki rubovi */
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-social:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.btn-tidal {
+  background-color: #000;
+  color: #fff;
+}
+
+.btn-tidal:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+
+

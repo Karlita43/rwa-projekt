@@ -54,6 +54,11 @@ export default function Login() {
     }
   };
 
+  const handleTidalLogin = () => {
+  window.location.href = "http://localhost:8000/auth/tidal/redirect";
+};
+
+
   return (
     <div className="page">
       <div className="modal-card">
@@ -80,6 +85,16 @@ export default function Login() {
         Nemate račun? <Link to="/register" className="modal-link">Registriraj se</Link>
       </p>
       </div>
+        <div className="social-login">
+      <button
+        type="button"
+        className="btn-social btn-tidal"
+        onClick={handleTidalLogin}
+        disabled={isSubmitting}
+      >
+        Prijavi se preko TIDAL-a
+      </button>
+    </div>
     </div>
   );
 }

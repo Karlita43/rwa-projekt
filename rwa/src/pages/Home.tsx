@@ -1,6 +1,7 @@
 import "../featured_cocktails.css";
 import { Link } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
+import api from "../api";
 
 function cocktailImageSrc(name: string) {
     const fileName = name.toLowerCase().trim().replace(/\s+/g, "_");
@@ -46,12 +47,13 @@ export default function Home() {
     };
 
     useEffect(() => {
-        fetch("http://127.0.0.1:8000/api/featured-cocktails")
-            .then((r) => r.json())
-            .then((data) => setFeatured(data))
-            .catch((err) => console.error("Featured cocktails error:", err))
-            .finally(() => setLoading(false));
-    }, []);
+    api
+        .get("/featured-cocktails")
+        .then((res) => setFeatured(res.data))
+        .catch((err) => console.error("Featured cocktails error:", err))
+        .finally(() => setLoading(false));
+}, []);
+
 
     function prevCat() {
         setActiveCat((i) => (i - 1 + categories.length) % categories.length);

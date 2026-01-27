@@ -148,11 +148,34 @@ class CocktailUserController extends Controller
     ]);
 }
 
+        public function favorites(Request $request)
+{
+    $user = $request->user();
 
+    $favorites = $user->favoriteCocktails()->with('ingredients')->get();
 
-
-
+    return response()->json($favorites);
 }
 
+        public function toggleFavorite(Request $request, $id)
+            {
+
+                $user = $request->user();
+                $cocktail = Cocktail::find($id);
+                if (!$cocktail) {
+                    return response()->json(['message' => 'Koktel nije pronađen.'], 404);
+                }
+                if ($user->favoriteCocktails()->where('cocktail_id', $id)->exists()) {
+                    // Ako je već favorit, ukloni ga
+                    $user->favoriteCocktails()->detach($id);
+                    return response()->json(['message' => 'Koktel uklonjen iz favorita.'], 200);
+                } else {
+                    // Ako nije favorit, dodaj ga
+                    $user->favoriteCocktails()->attach($id);
+                    return response()->json(['message' => 'Koktel dodan u favorite.'], 200);
+                }
+            }
+
+}
 
 
