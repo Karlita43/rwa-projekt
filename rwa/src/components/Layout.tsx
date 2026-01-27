@@ -93,7 +93,7 @@ export default function Layout() {
       </main>
 
       <footer className="footer">
-        <p>&copy; 2026 Riteh Kokteli. Sva prava pridržana.</p>
+        <p>&copy; 2026 RiTeh Kokteli. Sva prava pridržana.</p>
       </footer>
     </div>
   );
