@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import "../featured_cocktails.css";
 import api from "../api";
@@ -9,6 +9,31 @@ type Cocktail = {
   description?: string;
   image_url: string | null;
 };
+
+function buildPages(current: number, last: number, delta = 2): Array<number | "..."> {
+  const pages: Array<number | "..."> = [];
+  const range: number[] = [];
+
+  const left = Math.max(1, current - delta);
+  const right = Math.min(last, current + delta);
+
+  for (let i = left; i <= right; i++) range.push(i);
+
+  if (left > 1) {
+    pages.push(1);
+    if (left > 2) pages.push("...");
+  }
+
+  pages.push(...range);
+
+  if (right < last) {
+    if (right < last - 1) pages.push("...");
+    pages.push(last);
+  }
+
+  return pages;
+}
+
 
 function resolveCocktailImage(image_url: string | null) {
   if (image_url && /^https?:\/\//i.test(image_url)) return image_url;
@@ -23,6 +48,7 @@ export default function Cocktails() {
   const [page, setPage] = useState(1);
   const [nextUrl, setNextUrl] = useState<string | null>(null);
   const [prevUrl, setPrevUrl] = useState<string | null>(null);
+  const [lastPage, setLastPage] = useState(1);
 
   useEffect(() => {
     let cancelled = false;
@@ -42,6 +68,10 @@ export default function Cocktails() {
         setCocktails(res.data ?? []);
         setNextUrl(res.next_page_url ?? null);
         setPrevUrl(res.prev_page_url ?? null);
+
+        const lp = res.last_page ?? res?.meta?.last_page ?? 1;
+        setLastPage(Number(lp) || 1);
+
       } catch (err) {
         if (!cancelled) console.error("Cocktails fetch error:", err);
       } finally {
@@ -54,6 +84,8 @@ export default function Cocktails() {
       cancelled = true;
     };
   }, [page, q]);
+
+const pagesToRender = useMemo( () => buildPages(page, lastPage, 2), [page, lastPage] );
 
   return (
     <section className="featured" style={{ marginTop: "2rem" }}>
@@ -112,23 +144,44 @@ export default function Cocktails() {
             ))}
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              gap: 12,
-              marginTop: 20,
-            }}
-          >
+
+
+          {/* Stranicenje (isto kao prije) */}
+          <div className="pagination">
             <button
+              className="btn"
               disabled={!prevUrl || page === 1}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
             >
-              Prev
+              ← Prethodna
             </button>
 
-            <button disabled={!nextUrl} onClick={() => setPage((p) => p + 1)}>
-              Next
+            <div className="page-numbers" aria-label="Stranice">
+              {pagesToRender.map((p, idx) =>
+                p === "..." ? (
+                  <span key={`dots-${idx}`} className="page-dots">
+                    …
+                  </span>
+                ) : (
+                  <button
+                    key={p}
+                    type="button"
+                    className={`page-btn ${p === page ? "is-active" : ""}`}
+                    onClick={() => setPage(p)}
+                    aria-current={p === page ? "page" : undefined}
+                  >
+                    {p}
+                  </button>
+                )
+              )}
+            </div>
+
+            <button
+              className="btn"
+              disabled={!nextUrl || page === lastPage}
+              onClick={() => setPage((p) => Math.min(lastPage, p + 1))}
+            >
+              Sljedeća →
             </button>
           </div>
         </>

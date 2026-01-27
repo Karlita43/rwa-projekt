@@ -23,7 +23,8 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
     Route::get('/user/profile', [CocktailUserController::class, 'profile']);
     Route::get('/user/favorites', [CocktailUserController::class, 'favorites']);
     Route::post('/cocktails/{id}/favorite', [CocktailUserController::class, 'toggleFavorite']);
-    
+    //Tidal controller protected route
+    Route::get('/cocktails/{id}/tidal-track', [TidalMusicController::class, 'forCocktail']);
 
 });
 
