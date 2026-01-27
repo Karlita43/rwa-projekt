@@ -72,7 +72,7 @@ ali su tu dodane stvari na user pageu uređene*/
 .user-subtitle {
     margin-top: 24px;
     margin-bottom: 18px;
-    font-size: 19px;
+    font-size: 22px;
     font-weight: 700;
     letter-spacing: 0.2px;
     color: #2b1f1b;
@@ -80,12 +80,5 @@ ali su tu dodane stvari na user pageu uređene*/
     position: relative;
 }
 
-.user-subtitle::after {
-    content: "";
-    display: block;
-    width: 64px;
-    height: 3px;
-    margin-top: 8px;
-    border-radius: 999px;
-    background: rgba(111, 58, 58, 0.45);
-}
+
+

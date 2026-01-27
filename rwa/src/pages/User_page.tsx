@@ -48,7 +48,7 @@ export default function User_page() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
 
-  // ✅ DOTS PAGINATION (favoriti)
+  // DOTS PAGINATION (favoriti)
   const FAVS_PER_PAGE = 3;
   const [favPage, setFavPage] = useState(1);
 
@@ -177,7 +177,7 @@ export default function User_page() {
           <h2 className="user-title">
             Pozdrav, <span className="user-name">{userData?.username}</span> 👋
           </h2>
-          <p className="user-subtitle">Vaši kokteli</p>
+          <p className="user-subtitle">Vaši kokteli:</p>
         </div>
 
         <Link to="/kokteli/novo" className="btn">
@@ -226,7 +226,7 @@ export default function User_page() {
       {/* Favoriti */}
       <div style={{ marginTop: "2.5rem" }}>
         <div className="featured-head">
-          <h2>Favoriti</h2>
+          <h2>Favoriti:</h2>
         </div>
 
         {favoriteCocktails.length === 0 ? (
@@ -271,7 +271,7 @@ export default function User_page() {
               ))}
             </div>
 
-            {/* ✅ DOTS + kružno listanje */}
+            {/* DOTS + kružno listanje */}
             {favLastPage > 1 && (
               <div className="pagination">
                 <button
