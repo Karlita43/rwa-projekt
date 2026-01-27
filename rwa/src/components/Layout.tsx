@@ -41,7 +41,7 @@ export default function Layout() {
         <div className="header-inner">
           <Link className="brand" to="/">
             <span className="brand-mark">🍸</span>
-            <span className="brand-name">Riteh Kokteli</span>
+            <span className="brand-name">RiTeh Kokteli</span>
           </Link>
 
           <nav className="nav">
