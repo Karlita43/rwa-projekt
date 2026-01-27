@@ -43,10 +43,8 @@
     box-shadow: 0 26px 60px rgba(0, 0, 0, 0.12);
 }
 
-/* SLIKA – OVDJE JE BITNO */
 .cocktail-media {
     height: 340px;
-    /* <-- OVDJE POVEĆAVAŠ VISINU SLIKE */
 }
 
 .cocktail-media img {
@@ -56,7 +54,6 @@
     display: block;
 }
 
-/* TEKST */
 .cocktail-body {
     padding: 1rem 1.1rem 1.3rem;
 }
@@ -82,20 +79,17 @@
     color: #444;
 }
 
-/* HOWER PREKO KARTICE */
 .card-link {
     text-decoration: none;
     color: inherit;
     display: block;
 }
 
-/* omogućuje overlay */
 .cocktail-media {
     position: relative;
     overflow: hidden;
 }
 
-/* overlay sloj */
 .cocktail-media::after {
     content: "Pogledaj recept →";
     position: absolute;
@@ -127,7 +121,7 @@
     transform: scale(1.04);
 }
 
-/* RESPONSIVE */
+/* Responzivno */
 @media (max-width: 1000px) {
     .featured-grid {
         grid-template-columns: 1fr;
@@ -138,7 +132,7 @@
     }
 }
 
-/* STRANIČENJE */
+/* Stranicenje */
 
 .pagination {
     display: flex;
@@ -185,11 +179,7 @@
     font-weight: 700;
 }
 
-/* ========================================= */
-/* ===== HOME CATEGORIES (featured cards) ==== */
-/* ========================================= */
-
-/* ===== HOME CATEGORIES (stacked carousel - featured style cards) ===== */
+/*Izdvojni kokteli*/
 .home-cats {
     margin: 2.6rem auto 3.2rem;
     max-width: 1100px;
@@ -204,18 +194,14 @@
     margin: 0;
 }
 
-/* stage: sprječava rezanje i horizontal scroll */
 .cats-stage {
     position: relative;
     height: 340px;
-    /* dovoljno za sliku + tekst */
     overflow: hidden;
     padding: 12px;
     border-radius: 22px;
-    /* da rub bude čist */
 }
 
-/* link wrapper (pozicioniranje u carouselu) */
 .cat-card {
     position: absolute;
     left: 50%;
@@ -230,7 +216,6 @@
     transition: transform 220ms ease, opacity 220ms ease;
 }
 
-/* skrivamo sve osim -1/0/+1 */
 .cat-card.is-hidden {
     opacity: 0;
     pointer-events: none;
@@ -245,11 +230,9 @@
     pointer-events: auto;
 }
 
-/* kartica (kao featured kokteli) */
 .cat-card-inner {
     border-radius: 22px;
     overflow: hidden;
-    /* KLJUČ: slika i kartica budu zaobljene */
     background: rgba(255, 255, 255, 0.78);
     border: 1px solid rgba(0, 0, 0, 0.08);
 }
@@ -258,7 +241,6 @@
     background: rgba(255, 255, 255, 0.86);
 }
 
-/* slika */
 .cat-media {
     height: 200px;
     overflow: hidden;
@@ -271,7 +253,7 @@
     display: block;
 }
 
-/* overlay zatamnjenje za NEaktivne (da izgledaju prozirnije) */
+/* "neaktivne" stranice su tamnije */
 .cat-card:not(.is-active) .cat-media {
     position: relative;
 }
@@ -283,7 +265,6 @@
     background: rgba(255, 255, 255, 0.55);
 }
 
-/* tekst */
 .cat-body {
     padding: 1rem 1.1rem 1.1rem;
 }
@@ -299,7 +280,7 @@
     opacity: 0.85;
 }
 
-/* dots */
+/* tockice("stranice") */
 .cats-dots {
     display: flex;
     justify-content: center;
@@ -321,7 +302,7 @@
     background: rgba(0, 0, 0, 0.34);
 }
 
-/* strelice ispod dots i centrirane */
+/* strelice lijevo desno*/
 .home-cats-controls {
     display: flex;
     justify-content: center;
@@ -364,4 +345,35 @@
         transform: translate(-50%, -50%) translateX(calc(var(--offset) * 235px)) scale(var(--scale));
         width: 94vw;
     }
+}
+
+/* mejsto za srce */
+.cocktail-body h3 {
+    position: relative;
+    padding-right: 36px;
+}
+
+/* button srce */
+.cocktail-body h3 .fav-btn {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+
+    border: none;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+
+    cursor: pointer;
+
+    font-size: 28px;
+    line-height: 1;
+    color: rgba(0, 0, 0, 0.25);
+}
+
+/* aktivno */
+.cocktail-body h3 .fav-btn.active {
+    color: #d23b3b;
+   
 }

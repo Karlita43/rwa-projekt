@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState, useContext } from "react";
 import { Link, useParams } from "react-router-dom";
 import "../cocktail_details.css";
 import api from "../api";
+import { LoginContext } from "../LoginContextProvider";
 
 type Ingredient = {
   id?: number;
@@ -29,9 +30,23 @@ function resolveCocktailImage(image_url: string | undefined | null) {
 
 export default function CocktailDetails() {
   const { id } = useParams();
+  const { isLoggedIn } = useContext(LoginContext);
+
+  const token = useMemo(() => localStorage.getItem("token"), []);
+  const authHeaders = useMemo(
+    () => ({
+      headers: { Authorization: "Bearer " + token },
+    }),
+    [token]
+  );
+
   const [cocktail, setCocktail] = useState<Cocktail | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // ❤️ favorites state (kao na karticama)
+  const [favorites, setFavorites] = useState<Set<number>>(new Set());
+
+  // 1) Dohvati details
   useEffect(() => {
     if (!id) {
       setLoading(false);
@@ -56,26 +71,94 @@ export default function CocktailDetails() {
     return () => controller.abort();
   }, [id]);
 
+  // 2) Dohvati favorite (da srce odmah pokaže pravo stanje)
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadFavorites() {
+      if (!isLoggedIn || !token) return;
+
+      try {
+        const { data } = await api.get("/user/favorites", authHeaders);
+        const favList = (data?.data ?? data ?? []) as Array<{ id: number }>;
+        if (cancelled) return;
+
+        setFavorites(new Set(favList.map((c) => c.id)));
+      } catch (e) {
+        // ne rušimo stranicu ako favorites faila
+      }
+    }
+
+    loadFavorites();
+    return () => {
+      cancelled = true;
+    };
+  }, [isLoggedIn, token, authHeaders]);
+
+  async function toggleFavorite(cocktailId: number) {
+    // optimistic update
+    setFavorites((prev) => {
+      const next = new Set(prev);
+      if (next.has(cocktailId)) next.delete(cocktailId);
+      else next.add(cocktailId);
+      return next;
+    });
+
+    try {
+      await api.post(`/cocktails/${cocktailId}/favorite`, null, authHeaders);
+    } catch (err) {
+      // rollback
+      setFavorites((prev) => {
+        const next = new Set(prev);
+        if (next.has(cocktailId)) next.delete(cocktailId);
+        else next.add(cocktailId);
+        return next;
+      });
+    }
+  }
+
   return (
     <section className="cocktail-details">
-      {loading && <p>Učitavanje...</p>}
+      {loading && <p>Učitavanje.</p>}
 
       {!loading && cocktail === null && (
         <>
-            <h1 className="cocktail-title">Koktel nije pronađen</h1>
-            <div className="cocktail-actions">
+          <h1 className="cocktail-title">Koktel nije pronađen</h1>
+          <div className="cocktail-actions">
             <Link to="/kokteli" className="btn">
-                ← Svi kokteli
+              ← Svi kokteli
             </Link>
-            </div>
+          </div>
         </>
-        )}
+      )}
 
       {!loading && cocktail && (
         <div className="cocktail-layout">
           <header className="cocktail-header">
             <div className="cocktail-header-box">
-              <h1 className="cocktail-title">{cocktail.name}</h1>
+              {/* ✅ naslov + srce (kao na karticama) */}
+              <h1 className="cocktail-title with-fav">
+                {cocktail.name}
+
+                {isLoggedIn && (
+                  <button
+                    type="button"
+                    className={`fav-btn ${favorites.has(cocktail.id) ? "active" : ""}`}
+                    aria-label={
+                      favorites.has(cocktail.id) ? "Ukloni iz favorita" : "Dodaj u favorite"
+                    }
+                    aria-pressed={favorites.has(cocktail.id)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      toggleFavorite(cocktail.id);
+                    }}
+                  >
+                    ♥
+                  </button>
+                )}
+              </h1>
+
               {cocktail.description && (
                 <p className="cocktail-description">{cocktail.description}</p>
               )}
@@ -104,6 +187,7 @@ export default function CocktailDetails() {
                       const q = i.pivot?.quantity;
                       const u = i.pivot?.unit;
                       const qty = q ? `${q}${u ? ` ${u}` : ""}` : "";
+
                       return (
                         <li key={i.id ?? idx}>
                           <span className="cocktail-ing-name">{i.name}</span>

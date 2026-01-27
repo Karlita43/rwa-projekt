@@ -1,5 +1,4 @@
 
-/* Log In button da izgleda kao link */
 .login-btn {
     background: transparent;
     border: 0;
@@ -8,7 +7,6 @@
     font: inherit;
 }
 
-/* MODAL */
 .modal {
     position: fixed;
     inset: 0;
@@ -48,7 +46,6 @@
     padding: 18px;
 }
 
-/*"Prijava" i x za izaci*/
 .modal-head {
     display: flex;
     align-items: center;
@@ -101,8 +98,7 @@
     border-color: rgba(0, 0, 0, 1);
 }
 
-
-/* REGISTER */
+/*register*/
 .modal-hint {
     margin: 8px 0 0;
     font-size: 13px;
@@ -147,7 +143,7 @@
         box-shadow 0.15s ease;
 }
 
-/* ✨ shine sloj */
+/* Shine */
 .btn-login::before {
     content: "";
     position: absolute;
@@ -160,7 +156,6 @@
     transition: transform 0.6s ease;
 }
 
-/* hover efekt */
 .btn-login:hover {
     transform: translateY(-2px);
     box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
@@ -205,7 +200,7 @@
     animation: shake 0.35s ease;
 }
 
-/* poruka greške */
+/* error poruka */
 .form-error {
     margin-top: 6px;
     font-size: 13px;
@@ -231,7 +226,7 @@
 .btn-social {
   min-width: 220px;
   padding: 0.6rem 1.2rem;
-  border-radius: 10px; /* glatki rubovi */
+  border-radius: 10px;
   font-weight: 600;
   font-size: 0.95rem;
   cursor: pointer;

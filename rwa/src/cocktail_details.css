@@ -1,4 +1,4 @@
-/* COCKTAIL DETAILS (layout: slika lijevo, sadržaj desno) */
+/* COCKTAIL DETAILS */
 
 .cocktail-details {
     max-width: 1180px;
@@ -35,14 +35,12 @@
     box-shadow: 0 14px 34px rgba(0, 0, 0, 0.08);
 }
 
-/* naslov */
 .cocktail-title {
     margin: 0 0 0.6rem;
     font-size: 2rem;
     line-height: 1.2;
 }
 
-/* kratki opis */
 .cocktail-description {
     margin: 0;
     max-width: 52ch;
@@ -50,7 +48,6 @@
     opacity: 0.9;
 }
 
-/* LEFT = samo slika (sticky) */
 .cocktail-left {
     grid-area: left;
     position: sticky;
@@ -81,7 +78,6 @@
     border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
-/* RIGHT */
 .cocktail-right {
     grid-area: right;
 }
@@ -100,13 +96,12 @@
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
 }
 
-/* Na detaljima ne želimo hover "lift" */
+/* Na detaljima se ne podizu "kartice" */
 .cocktail-details .cocktail-card:hover {
     transform: none !important;
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06) !important;
 }
 
-/* Ako globalno negdje postoji transition, ugasi ga ovdje */
 .cocktail-details .cocktail-card {
     transition: none !important;
 }
@@ -159,6 +154,33 @@
     display: flex;
     justify-content: flex-start;
     margin-top: 1.25rem;
+}
+
+/* naslov + srce inline */
+.cocktail-title.with-fav {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    /* razmak između teksta i srca */
+}
+
+/* srce */
+.cocktail-title.with-fav .fav-btn {
+    border: none;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+
+    cursor: pointer;
+
+    font-size: 38px;
+    line-height: 1;
+    color: rgba(0, 0, 0, 0.25);
+}
+
+/* aktivno */
+.cocktail-title.with-fav .fav-btn.active {
+    color: #d23b3b;
 }
 
 /* RESPONSIVE */

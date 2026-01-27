@@ -2,14 +2,12 @@
 /*kartice i sve ostalo se vuce iz featured_cocktails
 ali su tu dodane stvari na user pageu uređene*/
 
-/* AKCIJE NA USER KARTICI */
 .card-actions {
     display: flex;
     gap: 10px;
     padding: 0 14px 16px;
 }
 
-/* manji "secondary" gumb */
 .btn-secondary {
     padding: 8px 16px;
     border-radius: 999px;
@@ -31,7 +29,6 @@ ali su tu dodane stvari na user pageu uređene*/
     filter: brightness(1.05);
 }
 
-/* opasna akcija – brisanje */
 .btn-danger {
     margin-left: auto;
 
@@ -63,7 +60,6 @@ ali su tu dodane stvari na user pageu uređene*/
     transform: translateY(0);
 }
 
-/* USER PAGE HEADER */
 .user-name {
     color: #6f3a3a;
 }

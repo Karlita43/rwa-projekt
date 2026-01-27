@@ -76,16 +76,26 @@ class CocktailController extends Controller
     }
 
     // GET /api/cocktails/category/{category}
-    public function byIngredientCategory(string $category)
-    {
-        $userId = optional(auth('sanctum')->user())->id;
+public function byIngredientCategory(string $category)
+{
+    $userId = optional(auth('sanctum')->user())->id;
 
-        $query = Cocktail::query();
-        $this->visibleTo($query, $userId);
+    $query = Cocktail::query();
+    $this->visibleTo($query, $userId);
 
+    // alkoholni sastojci
+    $alcoholCategories = ['rum', 'votka', 'gin', 'tekila', 'viski', 'liker', 'prosecco', 'ginger beer'];
+
+    // Iznimka bezalkoholno
+    if ($category === 'bezalkoholno') {
         $cocktails = $query
-            ->whereHas('ingredients', function ($q) use ($category) {
-                $q->where('category', $category);
+            // ne smije imati nijedan alkoholni sastojak
+            ->whereDoesntHave('ingredients', function ($q) use ($alcoholCategories) {
+                $q->whereIn('category', $alcoholCategories);
+            })
+            //mora imati barem jedan bezalkoholni sastojak
+            ->whereHas('ingredients', function ($q) {
+                $q->where('category', 'bezalkoholno');
             })
             ->with('ingredients:id,name,category')
             ->orderBy('name')
@@ -93,4 +103,16 @@ class CocktailController extends Controller
 
         return response()->json($cocktails);
     }
+
+    // Sve ostale kategorije, stara logika
+    $cocktails = $query
+        ->whereHas('ingredients', function ($q) use ($category) {
+            $q->where('category', $category);
+        })
+        ->with('ingredients:id,name,category')
+        ->orderBy('name')
+        ->get();
+
+    return response()->json($cocktails);
+}
 }

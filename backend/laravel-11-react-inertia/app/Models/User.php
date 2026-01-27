@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -14,8 +13,7 @@ use App\Models\Ingredient;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasApiTokens;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -26,7 +24,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'tidal_user_id',
+        'tidal_access_token',
         'tidal_refresh_token',
     ];
 
@@ -38,39 +36,48 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'tidal_access_token',
+        'tidal_refresh_token',
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * The attributes that should be cast.
      *
-     * @return array<string, string>
+     * @var array<string, string>
      */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
 
     public function ingredients()
     {
         return $this->belongsToMany(
             Ingredient::class,
-            'user_ingredients',
+            'ingredient_user',
             'user_id',
-            'ingredients_id'
-         );
+            'ingredient_id'
+        );
+    }
+
+    public function cocktails()
+    {
+        return $this->hasMany(Cocktail::class);
     }
 
     public function favorites()
-{
-    return $this->belongsToMany(
-        Cocktail::class,
-        'favorites',
-        'user_id',
-        'cocktail_id'
-    );
-}
+    {
+        return $this->belongsToMany(
+            Cocktail::class,
+            'favorites',
+            'user_id',
+            'cocktail_id'
+        );
+    }
 
+    //Alias jer controller koristi favoriteCocktails()
+    public function favoriteCocktails()
+    {
+        return $this->favorites()->withTimestamps();
+    }
 }

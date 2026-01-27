@@ -7,175 +7,145 @@ use App\Models\Cocktail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-
 class CocktailUserController extends Controller
 {
-        public function store(Request $request)
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:cocktails,name'],
             'description' => ['nullable', 'string'],
-            'instructions' => ['required', 'string'],
-
-            // URL slike (nije upload)
-            'image_url' => ['nullable', 'url', 'max:2048'],
-
-            // ingredients array
-            'ingredients' => ['required', 'array', 'min:1'],
-            'ingredients.*.ingredient_id' => ['required', 'integer', 'exists:ingredients,id'],
-            'ingredients.*.quantity' => ['nullable', 'numeric', 'min:0'],
-            'ingredients.*.unit' => ['nullable', 'string', 'max:50'],
+            'instructions' => ['nullable', 'string'],
+            'category' => ['nullable', 'string'],
+            'image_url' => ['nullable', 'string'],
+            'ingredients' => ['nullable', 'array'],
         ]);
 
-        $userId = $request->user()->id;
+        $cocktail = new Cocktail();
+        $cocktail->name = $validated['name'];
+        $cocktail->description = $validated['description'] ?? null;
+        $cocktail->instructions = $validated['instructions'] ?? null;
+        $cocktail->category = $validated['category'] ?? null;
+        $cocktail->image_url = $validated['image_url'] ?? null;
+        $cocktail->user_id = $request->user()->id;
+        $cocktail->save();
 
-        $cocktail = DB::transaction(function () use ($validated, $userId) {
-
-            $cocktail = Cocktail::create([
-                'name' => $validated['name'],
-                'description' => $validated['description'] ?? null,
-                'instructions' => $validated['instructions'],
-                'image_url' => $validated['image_url'] ?? null,
-                'user_id' => $userId,
-            ]);
-
-            // sync pivot (ingredient_id => [quantity, unit])
-            $syncData = [];
-            foreach ($validated['ingredients'] as $row) {
-                $syncData[$row['ingredient_id']] = [
-                    'quantity' => $row['quantity'] ?? null,
-                    'unit' => $row['unit'] ?? null,
-                ];
+        if (!empty($validated['ingredients'])) {
+            foreach ($validated['ingredients'] as $ingredient) {
+                DB::table('cocktail_ingredients')->insert([
+                    'cocktail_id' => $cocktail->id,
+                    'ingredient_id' => $ingredient['id'],
+                    'quantity' => $ingredient['quantity'] ?? null,
+                    'unit' => $ingredient['unit'] ?? null,
+                ]);
             }
+        }
 
-            $cocktail->ingredients()->sync($syncData);
-
-            return $cocktail;
-        });
-
-        return response()->json($cocktail->load('ingredients'), 201);
+        return response()->json(['message' => 'Koktel uspješno dodan.'], 201);
     }
-        public function destroy(Request $request, $id)
-    {
-            $userId = $request->user()->id;
 
-            $cocktail = Cocktail::where('id', $id) ->where('user_id', $userId) ->first();
-            if (!$cocktail) {
-                return response()->json(['message' => 'Koktel nije pronađen.'], 404);
-            }
-            $cocktail->ingredients()->detach();
-            $cocktail->delete();
+    public function destroy(Request $request, $id)
+    {
+        $user = $request->user();
+
+        $cocktail = Cocktail::where('id', $id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (!$cocktail) {
+            return response()->json(['message' => 'Koktel nije pronađen.'], 404);
+        }
+
+        DB::table('cocktail_ingredients')->where('cocktail_id', $id)->delete();
+        $cocktail->delete();
 
         return response()->json(['message' => 'Koktel uspješno obrisan.'], 200);
     }
 
-        public function userCocktails(Request $request)
-        {
-            if ($request->user()) {
-                return Cocktail::whereNull('user_id')
-                    ->orWhere('user_id', $request->user()->id)
-                    ->with('ingredients')
-                    ->get();
-            }
+    public function update(Request $request, $id)
+    {
+        $user = $request->user();
 
-            return Cocktail::whereNull('user_id')
-                ->with('ingredients')
-                ->get();
+        $cocktail = Cocktail::where('id', $id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (!$cocktail) {
+            return response()->json(['message' => 'Koktel nije pronađen.'], 404);
         }
 
-        
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'instructions' => ['nullable', 'string'],
+            'category' => ['nullable', 'string'],
+            'image_url' => ['nullable', 'string'],
+            'ingredients' => ['nullable', 'array'],
+        ]);
 
-            public function update(Request $request, $id)
-        {
-            $cocktail = Cocktail::find($id);
+        $cocktail->name = $validated['name'];
+        $cocktail->description = $validated['description'] ?? null;
+        $cocktail->instructions = $validated['instructions'] ?? null;
+        $cocktail->category = $validated['category'] ?? null;
+        $cocktail->image_url = $validated['image_url'] ?? null;
+        $cocktail->save();
 
-            if (!$cocktail) {
-                return response()->json(['message' => 'Koktel nije pronađen.'], 404);
+        DB::table('cocktail_ingredients')->where('cocktail_id', $id)->delete();
+
+        if (!empty($validated['ingredients'])) {
+            foreach ($validated['ingredients'] as $ingredient) {
+                DB::table('cocktail_ingredients')->insert([
+                    'cocktail_id' => $cocktail->id,
+                    'ingredient_id' => $ingredient['id'],
+                    'quantity' => $ingredient['quantity'] ?? null,
+                    'unit' => $ingredient['unit'] ?? null,
+                ]);
             }
-
-            // ✅ samo owner smije mijenjati
-            if ($cocktail->user_id !== $request->user()->id) {
-                return response()->json(['message' => 'Nemaš dopuštenje za uređivanje ovog koktela.'], 403);
-            }
-
-            $validated = $request->validate([
-                'name' => ['required', 'string', 'max:255', 'unique:cocktails,name,' . $id],
-                'description' => ['nullable', 'string'],
-                'instructions' => ['required', 'string'],
-                'image_url' => ['nullable', 'url', 'max:2048'],
-
-                'ingredients' => ['required', 'array', 'min:1'],
-                'ingredients.*.ingredient_id' => ['required', 'integer', 'exists:ingredients,id'],
-                'ingredients.*.quantity' => ['nullable', 'numeric', 'min:0'],
-                'ingredients.*.unit' => ['nullable', 'string', 'max:50'],
-            ]);
-
-            $cocktail->name = $validated['name'];
-            $cocktail->description = $validated['description'] ?? null;
-            $cocktail->instructions = $validated['instructions'];
-            $cocktail->image_url = $validated['image_url'] ?? null;
-            $cocktail->save();
-
-            $syncData = [];
-            foreach ($validated['ingredients'] as $row) {
-                $syncData[$row['ingredient_id']] = [
-                    'quantity' => $row['quantity'] ?? null,
-                    'unit' => $row['unit'] ?? null,
-                ];
-            }
-
-            $cocktail->ingredients()->sync($syncData);
-
-            return response()->json($cocktail->load('ingredients'), 200);
-}
-
-        public function myCocktailsOnly(Request $request)
-        {
-            $userId = $request->user()->id;
-
-            return Cocktail::where('user_id', $userId)
-                ->with('ingredients')
-                ->get();
         }
 
-        public function profile(Request $request)
-{
-    $user = $request->user();
+        return response()->json(['message' => 'Koktel uspješno ažuriran.'], 200);
+    }
 
-    return response()->json([
-        'username' => $user->name ?? $user->username ?? '',
-        'email' => $user->email,
-    ]);
+    public function myCocktailsOnly(Request $request)
+    {
+        $user = $request->user();
+        $cocktails = Cocktail::where('user_id', $user->id)->get();
+        return response()->json($cocktails);
+    }
+
+    public function profile(Request $request)
+    {
+        $user = $request->user();
+
+        return response()->json([
+            'username' => $user->name,
+            'email' => $user->email,
+        ]);
+    }
+
+    public function favorites(Request $request)
+    {
+        $user = $request->user();
+
+        $favorites = $user->favoriteCocktails()->with('ingredients')->get();
+
+        return response()->json($favorites);
+    }
+
+    public function toggleFavorite(Request $request, $id)
+    {
+        $user = $request->user();
+
+        $cocktail = Cocktail::find($id);
+        if (!$cocktail) {
+            return response()->json(['message' => 'Koktel nije pronađen.'], 404);
+        }
+
+        if ($user->favoriteCocktails()->where('cocktail_id', $id)->exists()) {
+            $user->favoriteCocktails()->detach($id);
+            return response()->json(['message' => 'Koktel uklonjen iz favorita.'], 200);
+        } else {
+            $user->favoriteCocktails()->attach($id);
+            return response()->json(['message' => 'Koktel dodan u favorite.'], 200);
+        }
+    }
 }
-
-        public function favorites(Request $request)
-{
-    $user = $request->user();
-
-    $favorites = $user->favoriteCocktails()->with('ingredients')->get();
-
-    return response()->json($favorites);
-}
-
-        public function toggleFavorite(Request $request, $id)
-            {
-
-                $user = $request->user();
-                $cocktail = Cocktail::find($id);
-                if (!$cocktail) {
-                    return response()->json(['message' => 'Koktel nije pronađen.'], 404);
-                }
-                if ($user->favoriteCocktails()->where('cocktail_id', $id)->exists()) {
-                    // Ako je već favorit, ukloni ga
-                    $user->favoriteCocktails()->detach($id);
-                    return response()->json(['message' => 'Koktel uklonjen iz favorita.'], 200);
-                } else {
-                    // Ako nije favorit, dodaj ga
-                    $user->favoriteCocktails()->attach($id);
-                    return response()->json(['message' => 'Koktel dodan u favorite.'], 200);
-                }
-            }
-
-}
-
-
