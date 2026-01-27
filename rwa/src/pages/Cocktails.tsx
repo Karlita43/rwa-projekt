@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "../featured_cocktails.css";
+import api from "../api";
 
 type Cocktail = {
   id: number;
@@ -14,70 +15,45 @@ function resolveCocktailImage(image_url: string | null) {
   return image_url ? `/koktel_slike/${image_url}` : "/koktel_slike/placeholder.jpg";
 }
 
-function getPaginationPages(current: number, total: number) {
-  const pages: (number | "...")[] = [];
-  if (total <= 1) return [1];
-
-  const push = (v: number | "...") => pages.push(v);
-
-  // uvijek prva
-  push(1);
-
-  // prozor oko trenutne: current-1, current, current+1 (bez 1 i total)
-  const start = Math.max(2, current - 1);
-  const end = Math.min(total - 1, current + 1);
-
-  if (start > 2) push("...");
-
-  for (let i = start; i <= end; i++) push(i);
-
-  if (end < total - 1) push("...");
-
-  // uvijek zadnja (ako je > 1)
-  push(total);
-
-  // ukloni moguće duplikate (npr. total=2)
-  return pages.filter((v, idx) => pages.indexOf(v) === idx);
-}
-
 export default function Cocktails() {
   const [cocktails, setCocktails] = useState<Cocktail[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
 
   const [page, setPage] = useState(1);
-  const [lastPage, setLastPage] = useState(1);
   const [nextUrl, setNextUrl] = useState<string | null>(null);
   const [prevUrl, setPrevUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    setLoading(true);
+    let cancelled = false;
 
-    const url = q.trim()
-      ? `http://127.0.0.1:8000/api/cocktails/search?q=${encodeURIComponent(
-        q.trim()
-      )}&page=${page}`
-      : `http://127.0.0.1:8000/api/cocktails?page=${page}`;
+    async function load() {
+      setLoading(true);
+      try {
+        const params = { page, ...(q.trim() ? { q: q.trim() } : {}) };
 
-    const token = localStorage.getItem("token");
-    const headers: Record<string, string> = {};
-    if (token) headers.Authorization = `Bearer ${token}`;
+        // Ako backend ima /cocktails i /cocktails/search:
+        const endpoint = q.trim() ? "/cocktails/search" : "/cocktails";
 
-    fetch(url, { headers })
-      .then((r) => r.json())
-      .then((res) => {
+        const { data: res } = await api.get(endpoint, { params });
+
+        if (cancelled) return;
+
         setCocktails(res.data ?? []);
         setNextUrl(res.next_page_url ?? null);
         setPrevUrl(res.prev_page_url ?? null);
+      } catch (err) {
+        if (!cancelled) console.error("Cocktails fetch error:", err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
 
-        const lp = res.last_page ?? res?.meta?.last_page ?? 1;
-        setLastPage(Number(lp) || 1);
-      })
-      .catch((err) => console.error("Cocktails fetch error:", err))
-      .finally(() => setLoading(false));
+    load();
+    return () => {
+      cancelled = true;
+    };
   }, [page, q]);
-
-  const pagesToRender = useMemo(() => getPaginationPages(page, lastPage), [page, lastPage]);
 
   return (
     <section className="featured" style={{ marginTop: "2rem" }}>
@@ -127,49 +103,32 @@ export default function Cocktails() {
 
                   <div className="cocktail-body">
                     <h3>{c.name}</h3>
-                    {c.description && <p className="cocktail-desc">{c.description}</p>}
+                    {c.description && (
+                      <p className="cocktail-desc">{c.description}</p>
+                    )}
                   </div>
                 </article>
               </Link>
             ))}
           </div>
 
-          {/* Stranicenje */}
-          <div className="pagination">
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: 12,
+              marginTop: 20,
+            }}
+          >
             <button
-              className="btn"
               disabled={!prevUrl || page === 1}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
             >
-              ← Prethodna
+              Prev
             </button>
 
-            <div className="page-numbers" aria-label="Stranice">
-              {pagesToRender.map((p, idx) =>
-                p === "..." ? (
-                  <span key={`dots-${idx}`} className="page-dots">
-                    …
-                  </span>
-                ) : (
-                  <button
-                    key={p}
-                    type="button"
-                    className={`page-btn ${p === page ? "is-active" : ""}`}
-                    onClick={() => setPage(p)}
-                    aria-current={p === page ? "page" : undefined}
-                  >
-                    {p}
-                  </button>
-                )
-              )}
-            </div>
-
-            <button
-              className="btn"
-              disabled={!nextUrl || page === lastPage}
-              onClick={() => setPage((p) => p + 1)}
-            >
-              Sljedeća →
+            <button disabled={!nextUrl} onClick={() => setPage((p) => p + 1)}>
+              Next
             </button>
           </div>
         </>
