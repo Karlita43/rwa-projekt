@@ -41,9 +41,23 @@ return new class extends Migration
      * Reverse the migrations.
      */
     public function down(): void
-    {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
-        Schema::dropIfExists('sessions');
+{
+    // Ako tablica users postoji, makni dodane kolone
+    if (Schema::hasTable('users')) {
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn([
+                'tidal_user_id',
+                'tidal_access_token',
+                'tidal_access_expires_at',
+                'tidal_refresh_token',
+            ]);
+        });
     }
+
+    // Zatim briši tablice (ako postoje)
+    Schema::dropIfExists('sessions');
+    Schema::dropIfExists('password_reset_tokens');
+    Schema::dropIfExists('users');
+}
+
 };

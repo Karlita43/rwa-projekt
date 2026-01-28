@@ -185,3 +185,78 @@
         height: 340px;
     }
 }
+/* za tidal komponente --> mogu se izmjenili po volji */
+.cocktail-header-row{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+}
+
+.cocktail-header-main{
+  flex:1;
+  min-width:0;
+}
+
+.tidal-mini{
+  width: 260px;
+  flex: 0 0 260px;
+  display:flex;
+  justify-content:flex-end;
+}
+
+.tidal-mini-link{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  text-decoration:none;
+  color:inherit;
+  padding:10px 12px;
+  border-radius:14px;
+  background: rgba(255,255,255,0.55);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+  max-width: 260px;
+}
+
+.tidal-mini-cover{
+  width:48px;
+  height:48px;
+  border-radius:12px;
+  object-fit:cover;
+  flex:0 0 48px;
+}
+
+.tidal-mini-text{
+  min-width:0;
+}
+
+.tidal-mini-kicker{
+  font-size:12px;
+  opacity:0.75;
+  margin-bottom:2px;
+}
+
+.tidal-mini-title{
+  font-weight:700;
+  font-size:14px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.tidal-mini-artist{
+  font-size:13px;
+  opacity:0.85;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.tidal-mini-muted{
+  font-size:13px;
+  opacity:0.75;
+  padding:10px 12px;
+  border-radius:14px;
+  background: rgba(255,255,255,0.35);
+}
+
