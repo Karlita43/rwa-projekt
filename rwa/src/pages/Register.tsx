@@ -69,8 +69,13 @@ export default function Register() {
     }
   };
 
-  return (
+    return (
     <div className="page">
+      <div style={{ marginTop: "1rem", marginLeft: "1rem"}}>
+        <Link to="/" className="btn">
+          ← Povratak na početnu
+        </Link>
+      </div>
       <div className="modal-card">
         <h2>Registracija</h2>
         <form className="modal-form" onSubmit={handleSubmit}>
@@ -114,3 +119,4 @@ export default function Register() {
     </div>
   );
 }
+

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import api from "../api";
 
+
 function cocktailImageSrc(name: string) {
     const fileName = name.toLowerCase().trim().replace(/\s+/g, "_");
     return `/koktel_slike/${fileName}.jpg`;

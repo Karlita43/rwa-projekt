@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\IngredientController;
 use App\Http\Controllers\Api\TidalMusicController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use App\Http\Controllers\Api\SearchController;
 
 // protected
 Route::middleware('auth:sanctum')->group(function () {
@@ -32,6 +33,8 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::get('/cocktails', [CocktailController::class, 'index']);
 Route::get('/cocktails/search', [CocktailController::class, 'search']);
 Route::get('/cocktails/{id}', [CocktailController::class, 'show']);
+
+Route::get('/cocktails/category/{category}', [CocktailController::class, 'byIngredientCategory']);
 
 // featured cocktails
 Route::get('/featured-cocktails', function () {

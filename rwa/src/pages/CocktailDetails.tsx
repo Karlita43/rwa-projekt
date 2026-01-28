@@ -202,89 +202,99 @@ export default function CocktailDetails() {
       {!loading && cocktail && (
         <div className="cocktail-layout">
           <header className="cocktail-header">
-            <div className="cocktail-header-box cocktail-header-row">
-              <div className="cocktail-header-main">
-                {cocktail.description && (
-                  <p className="cocktail-description">{cocktail.description}</p>
-                )}
+            <div className="cocktail-header-box">
+              {/* RED 1: naslov+srce lijevo, tidal desno */}
+              <div
+                className="cocktail-header-row"
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: "1rem",
+                }}
+              >
+                <h1 className="cocktail-title with-fav" style={{ margin: 0 }}>
+                  {cocktail.name}
+
+                  {isLoggedIn && (
+                    <button
+                      type="button"
+                      className={`fav-btn ${favorites.has(cocktail.id) ? "active" : ""}`}
+                      aria-label={
+                        favorites.has(cocktail.id) ? "Ukloni iz favorita" : "Dodaj u favorite"
+                      }
+                      aria-pressed={favorites.has(cocktail.id)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        toggleFavorite(cocktail.id);
+                      }}
+                    >
+                      ♥
+                    </button>
+                  )}
+                </h1>
+
+                <aside className="tidal-mini">
+                  {tidalLoading && <div className="tidal-mini-muted">Tražim pjesmu…</div>}
+
+                  {!tidalLoading && tidal?.track && (
+                    <a
+                      className="tidal-mini-link"
+                      href={tidal.track.url ?? undefined}
+                      target="_blank"
+                      rel="noreferrer"
+                      title="Otvori u TIDAL-u"
+                    >
+                      {tidal.track.cover && (
+                        <img
+                          className="tidal-mini-cover"
+                          src={tidal.track.cover}
+                          alt=""
+                          loading="lazy"
+                        />
+                      )}
+
+                      <div className="tidal-mini-text">
+                        <div className="tidal-mini-kicker">Preporuka (TIDAL)</div>
+                        <div className="tidal-mini-title">{tidal.track.title ?? "Nepoznato"}</div>
+                        <div className="tidal-mini-artist">{tidal.track.artist ?? ""}</div>
+                      </div>
+                    </a>
+                  )}
+
+                  {!tidalLoading && !tidal?.track && (
+                    <div className="tidal-mini-muted">
+                      {tidal?.needs_reconnect ? (
+                        <a
+                          className="tidal-mini-link"
+                          href={`http://localhost:8000/auth/tidal/redirect?token=${encodeURIComponent(
+                            localStorage.getItem("token") ?? ""
+                          )}`}
+                        >
+                          Spoji TIDAL ponovno.
+                        </a>
+                      ) : tidal?.connected === false ? (
+                        "Spoji TIDAL za preporuke."
+                      ) : showNoRecommendation ? (
+                        "Nema preporuke za ovaj naziv."
+                      ) : (
+                        hasAppToken ? "Spoji TIDAL za preporuke." : ""
+                      )}
+                    </div>
+                  )}
+                </aside>
               </div>
 
-              <aside className="tidal-mini">
-                {tidalLoading && <div className="tidal-mini-muted">Tražim pjesmu…</div>}
-
-                {!tidalLoading && tidal?.track && (
-                  <a
-                    className="tidal-mini-link"
-                    href={tidal.track.url ?? undefined}
-                    target="_blank"
-                    rel="noreferrer"
-                    title="Otvori u TIDAL-u"
-                  >
-                    {tidal.track.cover && (
-                      <img
-                        className="tidal-mini-cover"
-                        src={tidal.track.cover}
-                        alt=""
-                        loading="lazy"
-                      />
-                    )}
-
-                    <div className="tidal-mini-text">
-                      <div className="tidal-mini-kicker">Preporuka (TIDAL)</div>
-                      <div className="tidal-mini-title">{tidal.track.title ?? "Nepoznato"}</div>
-                      <div className="tidal-mini-artist">{tidal.track.artist ?? ""}</div>
-                    </div>
-                  </a>
-                )}
-
-                {!tidalLoading && !tidal?.track && (
-                  <div className="tidal-mini-muted">
-                    {tidal?.needs_reconnect ? (
-                      <a
-                        className="tidal-mini-link"
-                        href={`http://localhost:8000/auth/tidal/redirect?token=${encodeURIComponent(
-                          localStorage.getItem("token") ?? ""
-                        )}`}
-                      >
-                        Spoji TIDAL ponovno.
-                      </a>
-                    ) : tidal?.connected === false ? (
-                      "Spoji TIDAL za preporuke."
-                    ) : showNoRecommendation ? (
-                      "Nema preporuke za ovaj naziv."
-                    ) : (
-                      hasAppToken ? "Spoji TIDAL za preporuke." : ""
-                    )}
-                  </div>
-                )}
-              </aside>
-            </div>
-
-            <div className="cocktail-header-box">
-              {/* ✅ naslov + srce (kao na karticama) */}
-              <h1 className="cocktail-title with-fav">
-                {cocktail.name}
-
-                {isLoggedIn && (
-                  <button
-                    type="button"
-                    className={`fav-btn ${favorites.has(cocktail.id) ? "active" : ""}`}
-                    aria-label={
-                      favorites.has(cocktail.id) ? "Ukloni iz favorita" : "Dodaj u favorite"
-                    }
-                    aria-pressed={favorites.has(cocktail.id)}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      toggleFavorite(cocktail.id);
-                    }}
-                  >
-                    ♥
-                  </button>
-                )}
-              </h1>
+              {/* RED 2: description ispod, isti box */}
+              {cocktail.description && (
+                <p className="cocktail-description" style={{ marginTop: "0.75rem" }}>
+                  {cocktail.description}
+                </p>
+              )}
             </div>
           </header>
+
 
           <div className="cocktail-left">
             <div className="cocktail-image-wrap">

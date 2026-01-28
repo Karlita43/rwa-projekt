@@ -166,7 +166,14 @@ export default function Cocktails() {
       {!loading && (
         <>
           <div className="featured-grid">
-            {cocktails.map((c) => (
+            {cocktails
+              .filter(
+                (c) =>
+                  c.name &&
+                  c.name.toLowerCase() !== "name" &&
+                  c.description?.toLowerCase() !== "description"
+              )
+              .map((c) => (
               <Link key={c.id} to={`/kokteli/${c.id}`} className="card-link">
                 <article className="cocktail-card">
                   <div className="cocktail-media">

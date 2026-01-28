@@ -62,40 +62,54 @@ export default function Login() {
 
   return (
     <div className="page">
+      <div style={{ marginTop: "1rem", marginLeft: "1rem" }}>
+        <Link to="/" className="btn">
+          ← Povratak na početnu
+        </Link>
+      </div>
       <div className="modal-card">
         <h2>Login</h2>
-          <form className="modal-form" onSubmit={handleSubmit}>
-            <input
+
+        <form className="modal-form" onSubmit={handleSubmit}>
+          <input
             type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-        <input
-          type="password"
-          placeholder="Lozinka"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button type="submit" className="btn-login" disabled={isSubmitting}>
-          {isSubmitting ? "Prijavljivanje..." : "Prijavi se"}
-        </button>
-        {error && <div className="form-error">{error}</div>}
-      </form>
-      <p className="modal-hint" >
-        Nemate račun? <Link to="/register" className="modal-link">Registriraj se</Link>
-      </p>
+
+          <input
+            type="password"
+            placeholder="Lozinka"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
+          <button type="submit" className="btn-login" disabled={isSubmitting}>
+            {isSubmitting ? "Prijavljivanje..." : "Prijavi se"}
+          </button>
+
+          {error && <div className="form-error">{error}</div>}
+        </form>
+
+        <p className="modal-hint">
+          Nemate račun?{" "}
+          <Link to="/register" className="modal-link">
+            Registriraj se
+          </Link>
+        </p>
       </div>
-        <div className="social-login">
-      <button
-        type="button"
-        className="btn-social btn-tidal"
-        onClick={handleTidalLogin}
-        disabled={isSubmitting}
-      >
-        Prijavi se preko TIDAL-a
-      </button>
-    </div>
+
+      <div className="social-login">
+        <button
+          type="button"
+          className="btn-social btn-tidal"
+          onClick={handleTidalLogin}
+          disabled={isSubmitting}
+        >
+          Prijavi se preko TIDAL-a
+        </button>
+      </div>
     </div>
   );
 }
