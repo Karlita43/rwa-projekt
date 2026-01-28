@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->integer('ingredients_id');
-            $table->decimal('quantity', 6, 2);
+            $table->decimal('quantity', 6, 2)->nullable();
             $table->string('unit', 50);
             $table->timestamp('created_at')->nullable()->useCurrent();
             $table->timestamp('updated_at')->nullable()->useCurrent()->useCurrentOnUpdate();

@@ -12,9 +12,9 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $podaci = $request->validate([
-            'name' => 'required|string', 
+            'name' => 'required|string|min:3|max:100', 
             'email' => 'required|unique:users|email', 
-            'password' => 'required|string|confirmed'
+            'password' => 'required|string|confirmed|min:6'
         ]);
         $user = User::create([
             'name' => $podaci['name'],

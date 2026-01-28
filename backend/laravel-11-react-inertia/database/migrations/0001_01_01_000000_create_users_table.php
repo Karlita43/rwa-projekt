@@ -13,12 +13,18 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name', 100);
             $table->string('email')->unique();
+            $table->unsignedBigInteger('tidal_user_id')->nullable();
+            $table->text('tidal_access_token')->nullable();
+            $table->dateTime('tidal_access_expires_at')->nullable();
+            $table->text('tidal_refresh_token')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
+
+
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

@@ -9,21 +9,20 @@ use Illuminate\Support\Facades\DB;
 
 class CocktailUserController extends Controller
 {
-    public function store(Request $request)
+        public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255', 'unique:cocktails,name'],
+            'name' => ['required', 'string', 'min:2', 'max:50', 'unique:cocktails,name'],
             'description' => ['nullable', 'string'],
-            'instructions' => ['required', 'string'],
+            'instructions' => ['required', 'string', 'max:2048'],
 
-            // URL slike (nije upload)
             'image_url' => ['nullable', 'url', 'max:2048'],
 
-            // ingredients array
             'ingredients' => ['required', 'array', 'min:1'],
             'ingredients.*.ingredient_id' => ['required', 'integer', 'exists:ingredients,id'],
             'ingredients.*.quantity' => ['nullable', 'numeric', 'min:0'],
-            'ingredients.*.unit' => ['nullable', 'string', 'max:50'],
+            // samo slova (npr. ml, oz, dash)
+            'ingredients.*.unit' => ['nullable', 'string', 'max:50', 'regex:/^[a-zA-Z]+$/'],
         ]);
 
         $userId = $request->user()->id;
@@ -38,7 +37,6 @@ class CocktailUserController extends Controller
                 'user_id' => $userId,
             ]);
 
-            // sync pivot (ingredient_id => [quantity, unit])
             $syncData = [];
             foreach ($validated['ingredients'] as $row) {
                 $syncData[$row['ingredient_id']] = [

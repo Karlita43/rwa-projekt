@@ -1,7 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import "../featured_cocktails.css";
 import api from "../api";
+import { LoginContext } from "../LoginContextProvider";
+
 
 type Cocktail = {
   id: number;
@@ -50,7 +52,7 @@ export default function Cocktails() {
   const [lastPage, setLastPage] = useState(1);
 
   const token = useMemo(() => localStorage.getItem("token"), []);
-  const isLoggedIn = Boolean(token);
+  const { isLoggedIn } = useContext(LoginContext);
 
   const authHeaders = useMemo(
     () => ({

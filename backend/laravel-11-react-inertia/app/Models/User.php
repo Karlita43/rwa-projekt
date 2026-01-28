@@ -26,6 +26,8 @@ class User extends Authenticatable
         'password',
         'tidal_access_token',
         'tidal_refresh_token',
+        'tidal_access_expires_at',
+        'tidal_user_id',
     ];
 
     /**

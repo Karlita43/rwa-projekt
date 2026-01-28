@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('cocktails', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name', 50);
             $table->text('description')->nullable();
-            $table->text('instructions')->nullable();
+            $table->text('instructions', 2048)->nullable();
             $table->string('image_url')->nullable();
             $table->unsignedInteger('user_id');
         });

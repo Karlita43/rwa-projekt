@@ -15,7 +15,7 @@ return new class extends Migration
             $table->primary(['cocktail_id', 'ingredient_id']);
             $table->unsignedInteger('cocktail_id');
             $table->unsignedInteger('ingredient_id');
-            $table->decimal('quantity', 8, 2);
+            $table->decimal('quantity', 6, 2);
             $table->string('unit', 50);
 
             $table->foreign('cocktail_id')->references('id')->on('cocktails')->onDelete('cascade');
