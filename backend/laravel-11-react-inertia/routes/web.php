@@ -6,9 +6,11 @@ use Inertia\Inertia;
 use App\Models\Cocktail;
 use App\Http\Controllers\Api\TidalAuthController;
 
+
+
+// TIDAL OAuth (NE ide u auth:sanctum group)
 Route::get('/auth/tidal/redirect', [TidalAuthController::class, 'redirect']);
 Route::get('/auth/tidal/callback', [TidalAuthController::class, 'callback']);
-
 
 Route::get('/', function () {
     $cocktails = Cocktail::with('ingredients')

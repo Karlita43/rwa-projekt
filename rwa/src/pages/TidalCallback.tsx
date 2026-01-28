@@ -12,16 +12,16 @@ export default function TidalCallback() {
     const token = params.get("token");
 
     if (!token) {
-      navigate("/login");
+      navigate("/login", { replace: true });
       return;
     }
 
-    // spremi token kroz tvoj context (on već sprema u localStorage)
+    // ⬇️ spremi token (LoginContext ga već sprema i u localStorage)
     login(token);
 
-    // optional: očisti query iz URL-a (ljepše)
-    navigate("/", { replace: true });
+    // ⬇️ makni ?token=... iz URL-a
+    navigate("/profil", { replace: true });
   }, [location.search, login, navigate]);
 
-  return <div>Prijava preko TIDAL-a...</div>;
+  return <div>Prijava preko TIDAL-a…</div>;
 }

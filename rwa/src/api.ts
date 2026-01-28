@@ -1,9 +1,14 @@
+// src/api.ts
 import axios from "axios";
 
 const api = axios.create({
   baseURL: "http://localhost:8000/api",
+  headers: {
+    Accept: "application/json",
+  },
 });
 
+// svaki request -> dodaj Bearer token ako postoji
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {

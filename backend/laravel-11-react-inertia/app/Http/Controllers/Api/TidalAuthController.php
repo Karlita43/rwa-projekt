@@ -2,16 +2,26 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
-use App\Http\Controllers\Controller;
-use App\Models\User;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class TidalAuthController extends Controller
 {
     public function redirect(Request $request)
     {
+        // ako je user već ulogiran u app i želi samo spojiti TIDAL
+        $token = $request->query('token');
+        if ($token) {
+            $personal = PersonalAccessToken::findToken($token);
+            if ($personal && $personal->tokenable) {
+                session(['tidal_link_user_id' => $personal->tokenable->id]);
+            }
+        }
+
         $clientId = config('services.tidal.client_id');
         $redirectUri = config('services.tidal.redirect_uri');
 
@@ -21,57 +31,60 @@ class TidalAuthController extends Controller
 
         $state = Str::random(40);
 
-        // spremi na kratko (npr. 10 min)
         session([
-    'tidal_oauth_state' => $state,
-    'tidal_oauth_verifier' => $verifier,
-]);
+            'tidal_oauth_state' => $state,
+            'tidal_oauth_verifier' => $verifier,
+        ]);
 
-        $scopes = urlencode("user.read search.read recommendations.read"); 
-        $url = "https://login.tidal.com/authorize"
-            . "?response_type=code"
-            . "&client_id={$clientId}"
-            . "&redirect_uri=" . urlencode($redirectUri)
-            . "&scope={$scopes}"
-            . "&state={$state}"
-            . "&code_challenge_method=S256"
-            . "&code_challenge={$challenge}";
+        $params = [
+            'response_type' => 'code',
+            'client_id' => $clientId,
+            'redirect_uri' => $redirectUri,
+            'scope' => 'user.read search.read recommendations.read',
+            'state' => $state,
+            'code_challenge_method' => 'S256',
+            'code_challenge' => $challenge,
+        ];
+
+        $url = 'https://login.tidal.com/authorize?' .
+            http_build_query($params, '', '&', PHP_QUERY_RFC3986);
 
         return redirect()->away($url);
     }
 
     public function callback(Request $request)
     {
+        if ($request->query('error')) {
+            return response()->json([
+                'message' => 'TIDAL OAuth error',
+                'error' => $request->query('error'),
+                'error_description' => $request->query('error_description'),
+            ], 400);
+        }
+
         $code = $request->query('code');
-        $state = $request->query('state');    
+        $state = $request->query('state');
 
         if (!$code || !$state) {
             return response()->json(['message' => 'Missing code/state'], 400);
         }
 
-        
-
-        $expectedState = session('tidal_oauth_state');
-        $verifier = session('tidal_oauth_verifier');
-
-        if (!$expectedState || $expectedState !== $state || !$verifier) {
-            return response()->json(['message' => 'Invalid/expired state'], 400);
+        if (session('tidal_oauth_state') !== $state) {
+            return response()->json(['message' => 'Invalid state'], 400);
         }
 
-        // obriši iz sessiona da se ne može ponovo iskoristiti
+        $verifier = session('tidal_oauth_verifier');
         session()->forget(['tidal_oauth_state', 'tidal_oauth_verifier']);
-
 
         $clientId = config('services.tidal.client_id');
         $clientSecret = config('services.tidal.client_secret');
         $redirectUri = config('services.tidal.redirect_uri');
 
-        // Zamjena code -> token (token endpoint)
+        // code -> token
         $tokenRes = Http::asForm()
             ->withBasicAuth($clientId, $clientSecret)
             ->post('https://auth.tidal.com/v1/oauth2/token', [
                 'grant_type' => 'authorization_code',
-                'client_id' => $clientId,
                 'code' => $code,
                 'redirect_uri' => $redirectUri,
                 'code_verifier' => $verifier,
@@ -80,72 +93,63 @@ class TidalAuthController extends Controller
         if (!$tokenRes->successful()) {
             return response()->json([
                 'message' => 'Token exchange failed',
-                'status' => $tokenRes->status(),
                 'body' => $tokenRes->json(),
             ], 400);
         }
 
         $accessToken = $tokenRes->json('access_token');
         $refreshToken = $tokenRes->json('refresh_token');
+        $expiresIn = (int) $tokenRes->json('expires_in', 0);
 
-        // 1) Dohvati TIDAL usera
-        $countryCode = config('services.tidal.country_code', 'HR');
-
+        // TIDAL user
         $meRes = Http::withToken($accessToken)
             ->get('https://openapi.tidal.com/v2/users/me', [
-                'countryCode' => $countryCode,
+                'countryCode' => config('services.tidal.country_code', 'HR'),
             ]);
 
         if (!$meRes->successful()) {
-            return response()->json([
-                'message' => 'Ne mogu dohvatiti TIDAL usera (/users/me)',
-                'status' => $meRes->status(),
-                'body' => $meRes->json(),
-            ], 400);
+            return response()->json(['message' => 'Cannot fetch TIDAL user'], 400);
         }
 
         $tidalUserId = data_get($meRes->json(), 'data.id');
         $email = data_get($meRes->json(), 'data.attributes.email');
-        $name = data_get($meRes->json(), 'data.attributes.username')
-            ?? data_get($meRes->json(), 'data.attributes.firstName')
-            ?? 'TIDAL user';
+        $name = data_get($meRes->json(), 'data.attributes.username') ?? 'TIDAL user';
 
-        if (!$tidalUserId) {
-            return response()->json(['message' => 'Nedostaje TIDAL user id'], 400);
-        }
+        // linking na već ulogiranog usera
+        $linkUserId = session('tidal_link_user_id');
+        session()->forget('tidal_link_user_id');
 
-        // 2) Nađi ili kreiraj usera u tvojoj bazi
-
-        $user = User::where('tidal_user_id', $tidalUserId)->first();
-
-        if (!$user && $email) {
-            // ako postoji user s istim emailom (npr. registriran normalno) – spoji račune
-            $user = User::where('email', $email)->first();
-        }
-
-        if (!$user) {
-            // nema ga ni po tidal_user_id ni po emailu -> kreiraj novog
-            $user = User::create([
-                'name' => $name,
-                'email' => $email ?: ("tidal_{$tidalUserId}@example.local"),
-                'password' => bcrypt(Str::random(32)),
-                'tidal_user_id' => $tidalUserId,
-                'tidal_refresh_token' => $refreshToken,
-            ]);
+        if ($linkUserId) {
+            $user = User::findOrFail($linkUserId);
         } else {
-            // updateaj postojeći user (spoji/refresh token)
-            if (!$user->tidal_user_id) {
-                $user->tidal_user_id = $tidalUserId;
+            $user = User::where('tidal_user_id', $tidalUserId)->first()
+                ?? ($email ? User::where('email', $email)->first() : null);
+
+            if (!$user) {
+                $user = User::create([
+                    'name' => $name,
+                    'email' => $email ?: "tidal_{$tidalUserId}@example.local",
+                    'password' => bcrypt(Str::random(32)),
+                ]);
             }
-            $user->tidal_refresh_token = $refreshToken;
-            $user->save();
         }
 
-        // 3) Izdaj Sanctum token
+        // ✅ SPREMANJE TOKENA (KLJUČNO)
+        $user->tidal_user_id = $tidalUserId;
+        $user->tidal_refresh_token = $refreshToken;
+        $user->tidal_access_token = $accessToken;
+        $user->tidal_access_expires_at = $expiresIn
+            ? now()->addSeconds($expiresIn)
+            : now()->addHour();
+
+        $user->save();
+
+        // app token
         $appToken = $user->createToken('tidal-login')->plainTextToken;
 
-        // 4) Redirect na frontend (React) s tokenom
-        $frontend = config('services.tidal.frontend_url');
-        return redirect()->away($frontend . '/auth/tidal/callback?token=' . urlencode($appToken));       
+        return redirect()->away(
+            config('services.tidal.frontend_url') .
+            '/auth/tidal/callback?token=' . urlencode($appToken)
+        );
     }
 }

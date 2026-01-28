@@ -61,6 +61,7 @@ export default function Login() {
     window.location.href = "http://localhost:8000/auth/tidal/redirect";
   };
 
+
   return (
     <div className="page">
       <div style={{ marginTop: "1rem", marginLeft: "1rem" }}>

@@ -4,6 +4,22 @@ import "../cocktail_details.css";
 import api from "../api";
 import { LoginContext } from "../LoginContextProvider";
 
+type TidalTrack = {
+  id: string | number;
+  title: string | null;
+  artist: string | null;
+  cover: string | null;
+  url: string | null;
+};
+
+type TidalTrackResponse = {
+  connected: boolean;
+  needs_reconnect?: boolean; // ✅ DODANO (minimalno)
+  query?: string;
+  track: TidalTrack | null;
+  message?: string;
+};
+
 type Ingredient = {
   id?: number;
   name: string;
@@ -42,6 +58,11 @@ export default function CocktailDetails() {
 
   const [cocktail, setCocktail] = useState<Cocktail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [tidal, setTidal] = useState<TidalTrackResponse | null>(null);
+  const [tidalLoading, setTidalLoading] = useState(false);
+  
+
+  const hasAppToken = !!localStorage.getItem("token");
 
   // ❤️ favorites state (kao na karticama)
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
@@ -62,15 +83,61 @@ export default function CocktailDetails() {
       .then((res) => setCocktail(res.data))
       .catch((err) => {
         if (err?.name !== "CanceledError" && err?.name !== "AbortError") {
-          console.error("Cocktail details error:", err);
+          console.error("Cocktail error status:", err?.response?.status);
+          console.error("Cocktail error data:", err?.response?.data);
         }
-        setCocktail(null);
+        setTidal(null);
       })
       .finally(() => setLoading(false));
 
     return () => controller.abort();
   }, [id]);
 
+  useEffect(() => {
+  if (!id) return;
+
+  const token = localStorage.getItem("token");
+  if (!token) {
+    setTidal(null);
+    setTidalLoading(false);
+    return;
+  }
+
+  let alive = true;
+  setTidalLoading(true);
+
+  api
+    .get<TidalTrackResponse>(`/cocktails/${id}/tidal-track`)
+    .then((res) => {
+      if (alive) setTidal(res.data);
+    })
+    .catch((err) => {
+      if (!alive) return;
+
+      console.log("TIDAL error message:", err?.message);
+      console.log("TIDAL error code:", err?.code);
+      console.log("TIDAL status:", err?.response?.status);
+      console.log("TIDAL data:", err?.response?.data);
+      setTidal(null);
+    })
+    .finally(() => {
+      if (alive) setTidalLoading(false);
+    });
+
+  return () => {
+    alive = false;
+  };
+}, [id]);
+
+
+
+  // ✅ “Nema preporuke…” samo ako je stvarno connected === true
+  const showNoRecommendation =
+    !tidalLoading &&
+    !!tidal &&
+    tidal.connected === true &&
+    !tidal.needs_reconnect &&
+    !tidal.track;
   // 2) Dohvati favorite (da srce odmah pokaže pravo stanje)
   useEffect(() => {
     let cancelled = false;
@@ -135,6 +202,64 @@ export default function CocktailDetails() {
       {!loading && cocktail && (
         <div className="cocktail-layout">
           <header className="cocktail-header">
+            <div className="cocktail-header-box cocktail-header-row">
+              <div className="cocktail-header-main">
+                {cocktail.description && (
+                  <p className="cocktail-description">{cocktail.description}</p>
+                )}
+              </div>
+
+              <aside className="tidal-mini">
+                {tidalLoading && <div className="tidal-mini-muted">Tražim pjesmu…</div>}
+
+                {!tidalLoading && tidal?.track && (
+                  <a
+                    className="tidal-mini-link"
+                    href={tidal.track.url ?? undefined}
+                    target="_blank"
+                    rel="noreferrer"
+                    title="Otvori u TIDAL-u"
+                  >
+                    {tidal.track.cover && (
+                      <img
+                        className="tidal-mini-cover"
+                        src={tidal.track.cover}
+                        alt=""
+                        loading="lazy"
+                      />
+                    )}
+
+                    <div className="tidal-mini-text">
+                      <div className="tidal-mini-kicker">Preporuka (TIDAL)</div>
+                      <div className="tidal-mini-title">{tidal.track.title ?? "Nepoznato"}</div>
+                      <div className="tidal-mini-artist">{tidal.track.artist ?? ""}</div>
+                    </div>
+                  </a>
+                )}
+
+                {!tidalLoading && !tidal?.track && (
+                  <div className="tidal-mini-muted">
+                    {tidal?.needs_reconnect ? (
+                      <a
+                        className="tidal-mini-link"
+                        href={`http://localhost:8000/auth/tidal/redirect?token=${encodeURIComponent(
+                          localStorage.getItem("token") ?? ""
+                        )}`}
+                      >
+                        Spoji TIDAL ponovno.
+                      </a>
+                    ) : tidal?.connected === false ? (
+                      "Spoji TIDAL za preporuke."
+                    ) : showNoRecommendation ? (
+                      "Nema preporuke za ovaj naziv."
+                    ) : (
+                      hasAppToken ? "Spoji TIDAL za preporuke." : ""
+                    )}
+                  </div>
+                )}
+              </aside>
+            </div>
+
             <div className="cocktail-header-box">
               {/* ✅ naslov + srce (kao na karticama) */}
               <h1 className="cocktail-title with-fav">
@@ -158,10 +283,6 @@ export default function CocktailDetails() {
                   </button>
                 )}
               </h1>
-
-              {cocktail.description && (
-                <p className="cocktail-description">{cocktail.description}</p>
-              )}
             </div>
           </header>
 
