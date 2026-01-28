@@ -7,7 +7,6 @@ use App\Models\Ingredient;
 
 class Cocktail extends Model
 {
-
     // Eksplicitno (nije obavezno, ali je dobra praksa)
     protected $table = 'cocktails';
     public $timestamps = false;
@@ -17,12 +16,15 @@ class Cocktail extends Model
         'name',
         'description',
         'instructions',
-        'image_url',
+        'category',
         'user_id',
+        'image_url',
     ];
 
-    // Ako tablica NEMA created_at i updated_at, odkomentiraj ovo:
-    // public $timestamps = false;
+    public function user()
+    {
+        return $this->belongsTo(\App\Models\User::class);
+    }
 
     public function ingredients()
     {
@@ -31,10 +33,10 @@ class Cocktail extends Model
             'cocktail_ingredients',
             'cocktail_id',
             'ingredient_id'
-        )->withPivot('quantity', 'unit'); 
+        )->withPivot('quantity', 'unit');
     }
 
-     public function getImageUrlResolvedAttribute()
+    public function getImageUrlResolvedAttribute()
     {
         $val = $this->image_url; // kolona iz baze
 
@@ -45,7 +47,6 @@ class Cocktail extends Model
             return $val;
         }
 
-        // Ako je filename (mojito.jpg) -> public/koktel_slike/mojito.jpg
         return asset('koktel_slike/' . ltrim($val, '/'));
     }
 }

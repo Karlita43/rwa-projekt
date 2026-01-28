@@ -34,7 +34,6 @@ function buildPages(current: number, last: number, delta = 2): Array<number | ".
   return pages;
 }
 
-
 function resolveCocktailImage(image_url: string | null) {
   if (image_url && /^https?:\/\//i.test(image_url)) return image_url;
   return image_url ? `/koktel_slike/${image_url}` : "/koktel_slike/placeholder.jpg";
@@ -50,6 +49,19 @@ export default function Cocktails() {
   const [prevUrl, setPrevUrl] = useState<string | null>(null);
   const [lastPage, setLastPage] = useState(1);
 
+  const token = useMemo(() => localStorage.getItem("token"), []);
+  const isLoggedIn = Boolean(token);
+
+  const authHeaders = useMemo(
+    () => ({
+      headers: { Authorization: "Bearer " + token },
+    }),
+    [token]
+  );
+
+  const [favorites, setFavorites] = useState<Set<number>>(new Set());
+
+  // load cocktails list
   useEffect(() => {
     let cancelled = false;
 
@@ -57,10 +69,7 @@ export default function Cocktails() {
       setLoading(true);
       try {
         const params = { page, ...(q.trim() ? { q: q.trim() } : {}) };
-
-        // Ako backend ima /cocktails i /cocktails/search:
         const endpoint = q.trim() ? "/cocktails/search" : "/cocktails";
-
         const { data: res } = await api.get(endpoint, { params });
 
         if (cancelled) return;
@@ -71,7 +80,6 @@ export default function Cocktails() {
 
         const lp = res.last_page ?? res?.meta?.last_page ?? 1;
         setLastPage(Number(lp) || 1);
-
       } catch (err) {
         if (!cancelled) console.error("Cocktails fetch error:", err);
       } finally {
@@ -85,7 +93,43 @@ export default function Cocktails() {
     };
   }, [page, q]);
 
-const pagesToRender = useMemo( () => buildPages(page, lastPage, 2), [page, lastPage] );
+  // load favorites ids
+  useEffect(() => {
+    if (!isLoggedIn) return;
+
+    api
+      .get("/user/favorites", authHeaders)
+      .then((res) => {
+        const list = (res.data ?? []) as { id: number }[];
+        setFavorites(new Set(list.map((c) => c.id)));
+      })
+      .catch((err) => console.error("Favorites fetch error:", err));
+  }, [isLoggedIn, authHeaders]);
+
+  const toggleFavorite = async (id: number) => {
+    // optimistic UI
+    setFavorites((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+
+    try {
+      await api.post(`/cocktails/${id}/favorite`, null, authHeaders);
+    } catch (err) {
+      console.error("Toggle favorite error:", err);
+      // rollback
+      setFavorites((prev) => {
+        const next = new Set(prev);
+        if (next.has(id)) next.delete(id);
+        else next.add(id);
+        return next;
+      });
+    }
+  };
+
+  const pagesToRender = useMemo(() => buildPages(page, lastPage, 2), [page, lastPage]);
 
   return (
     <section className="featured" style={{ marginTop: "2rem" }}>
@@ -126,27 +170,39 @@ const pagesToRender = useMemo( () => buildPages(page, lastPage, 2), [page, lastP
               <Link key={c.id} to={`/kokteli/${c.id}`} className="card-link">
                 <article className="cocktail-card">
                   <div className="cocktail-media">
-                    <img
-                      src={resolveCocktailImage(c.image_url)}
-                      alt={c.name}
-                      loading="lazy"
-                    />
+                    <img src={resolveCocktailImage(c.image_url)} alt={c.name} loading="lazy" />
                   </div>
 
                   <div className="cocktail-body">
-                    <h3>{c.name}</h3>
-                    {c.description && (
-                      <p className="cocktail-desc">{c.description}</p>
-                    )}
+                    <h3>
+                      {c.name}
+
+                      {isLoggedIn && (
+                        <button
+                          type="button"
+                          className={`fav-btn ${favorites.has(c.id) ? "active" : ""}`}
+                          aria-label={
+                            favorites.has(c.id) ? "Ukloni iz favorita" : "Dodaj u favorite"
+                          }
+                          aria-pressed={favorites.has(c.id)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            toggleFavorite(c.id);
+                          }}
+                        >
+                          ♥
+                        </button>
+                      )}
+                    </h3>
+
+                    {c.description && <p className="cocktail-desc">{c.description}</p>}
                   </div>
                 </article>
               </Link>
             ))}
           </div>
 
-
-
-          {/* Stranicenje (isto kao prije) */}
           <div className="pagination">
             <button
               className="btn"

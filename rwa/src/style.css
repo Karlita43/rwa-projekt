@@ -1,4 +1,3 @@
-/* RESET / OSNOVNO */
 * {
   box-sizing: border-box;
 }
@@ -13,11 +12,9 @@ body {
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   color: #2b1f1b;
   background: transparent;
-  /* bitno */
   position: relative;
 }
 
-/* jedan jedini background layer preko cijele stranice */
 body::before {
   content: "";
   position: fixed;
@@ -41,9 +38,6 @@ body::before {
         #f1dfcb 100%);
 }
 
-
-
-/* HEADER */
 .site-header {
   width: 100%;
   padding: 16px 24px;
@@ -54,7 +48,6 @@ body::before {
   top: 0;
   z-index: 50;
 
-  /* glass, ali malo toplije/tamnije i urednije */
   background: rgba(235, 214, 192, 0.82);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -78,7 +71,6 @@ body::before {
   align-items: center;
   text-decoration: none;
   color: inherit;
-  /* uzima boju od body-a */
 }
 
 .brand-mark {
@@ -91,15 +83,13 @@ body::before {
   letter-spacing: 0.2px;
 }
 
-/* NAVIGACIJSKI MENI */
 .nav {
   display: flex;
   align-items: center;
   gap: 14px;
-  /* kompaktnije */
+
 }
 
-/* svi itemi u headeru isti "pill" look */
 .nav-link,
 .dropdown-btn {
   font-size: 16px;
@@ -112,13 +102,11 @@ body::before {
   transition: background 0.18s ease, opacity 0.18s ease, transform 0.18s ease;
 }
 
-/* link reset */
 .nav-link {
   text-decoration: none;
   color: inherit;
 }
 
-/* dropdown button kao link */
 .dropdown-btn {
   background: transparent;
   border: 0;
@@ -147,11 +135,10 @@ body::before {
   opacity: 0.8;
 }
 
-/* TOPLI "glass" dropdown (nije ni bijel ni crn) */
 .dropdown-menu {
   position: absolute;
   z-index: 1000;
-  top: 44px;
+  top: 42px;
   right: 0;
   min-width: 220px;
   display: none;
@@ -187,7 +174,7 @@ body::before {
   display: block;
 }
 
-/* HERO */
+
 .hero {
   max-width: 1200px;
   margin: 0 auto;
@@ -271,20 +258,18 @@ body::before {
   padding: 16px 32px;
 }
 
-/* Header: "Prijavi se" ne smije imati shine efekte, vuce iz drugog cssa */
+/* Header: "Prijavi se" vuce shine effekt sa drugog cssa pa sprijecimo */
 .site-header .btn-login::before,
 .site-header .btn-login::after {
   content: none !important;
   display: none !important;
 }
 
-/* I za svaki slučaj: da ništa ne može izlazit iz gumba */
 .site-header .btn-login {
   position: relative;
   overflow: hidden;
 }
 
-/* desna slika */
 .hero-media {
   border-radius: 999px 24px 24px 999px;
   overflow: hidden;
@@ -299,7 +284,6 @@ body::before {
   display: block;
 }
 
-/* SEKCIJE ISPOD (za kasnije) */
 .section {
   max-width: 1200px;
   margin: 0 auto;
@@ -317,7 +301,6 @@ body::before {
   gap: 16px;
 }
 
-/* FOOTER */
 .size-footer {
   max-width: 1200px;
   margin: 0 auto;
@@ -342,7 +325,8 @@ body::before {
 }
 
 /* pretpostavljam da mi druci css(login.css) pregazi malo ovaj css
-  pa za svaki slucaj da mi sve izgleda isto... kasnije moguce izmjene*/
+  pa za svaki slucaj da mi sve izgleda isto... kasnije moguce izmjene
+  To je za navigacijski meni stvaralo problem*/
 .site-header .nav .nav-link,
 .site-header .nav .dropdown-btn,
 .site-header .nav a,

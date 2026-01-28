@@ -35,7 +35,6 @@ export default function Home() {
         []
     );
 
-    // fiksne slike za kategorije (stavi ih u /public/koktel_slike/)
     const catImages: Record<string, string> = {
         rum: "/koktel_slike/rum.jpg",
         votka: "/koktel_slike/votka.jpg",
@@ -46,14 +45,65 @@ export default function Home() {
         bezalkoholno: "/koktel_slike/bezalkoholno.jpg",
     };
 
-    useEffect(() => {
-    api
-        .get("/featured-cocktails")
-        .then((res) => setFeatured(res.data))
-        .catch((err) => console.error("Featured cocktails error:", err))
-        .finally(() => setLoading(false));
-}, []);
+    // auth
+    const token = useMemo(() => localStorage.getItem("token"), []);
+    const isLoggedIn = Boolean(token);
 
+    const authHeaders = useMemo(
+        () => ({
+            headers: { Authorization: "Bearer " + token },
+        }),
+        [token]
+    );
+
+    // favorites IDs (iz backenda)
+    const [favorites, setFavorites] = useState<Set<number>>(new Set());
+
+    // featured
+    useEffect(() => {
+        api
+            .get("/featured-cocktails")
+            .then((res) => setFeatured(res.data))
+            .catch((err) => console.error("Featured cocktails error:", err))
+            .finally(() => setLoading(false));
+    }, []);
+
+    // učitaj favorite (samo ako logiran)
+    useEffect(() => {
+        if (!isLoggedIn) return;
+
+        api
+            .get("/user/favorites", authHeaders)
+            .then((res) => {
+                const list = (res.data ?? []) as { id: number }[];
+                setFavorites(new Set(list.map((c) => c.id)));
+            })
+            .catch((err) => console.error("Favorites fetch error:", err));
+    }, [isLoggedIn, authHeaders]);
+
+    // toggle preko backenda
+    const toggleFavorite = async (id: number) => {
+        // optimistički UI
+        setFavorites((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+
+        try {
+            await api.post(`/cocktails/${id}/favorite`, null, authHeaders);
+        } catch (err) {
+            console.error("Toggle favorite error:", err);
+            // rollback ako faila
+            setFavorites((prev) => {
+                const next = new Set(prev);
+                if (next.has(id)) next.delete(id);
+                else next.add(id);
+                return next;
+            });
+        }
+    };
 
     function prevCat() {
         setActiveCat((i) => (i - 1 + categories.length) % categories.length);
@@ -63,7 +113,6 @@ export default function Home() {
         setActiveCat((i) => (i + 1) % categories.length);
     }
 
-    // offset u rasponu [-N/2..N/2] da rubovi rade normalno
     function getOffset(i: number) {
         const n = categories.length;
         let d = i - activeCat;
@@ -101,7 +150,7 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* FEATURED (NE DIRAMO) */}
+            {/* FEATURED */}
             <section className="featured">
                 <div className="featured-head">
                     <h2>Izdvojeni kokteli</h2>
@@ -115,18 +164,33 @@ export default function Home() {
                             <Link key={c.id} to={`/kokteli/${c.id}`} className="card-link">
                                 <article className="cocktail-card">
                                     <div className="cocktail-media">
-                                        <img
-                                            src={cocktailImageSrc(c.name)}
-                                            alt={c.name}
-                                            loading="lazy"
-                                        />
+                                        <img src={cocktailImageSrc(c.name)} alt={c.name} loading="lazy" />
                                     </div>
 
                                     <div className="cocktail-body">
-                                        <h3>{c.name}</h3>
-                                        {c.description && (
-                                            <p className="cocktail-desc">{c.description}</p>
-                                        )}
+                                        <h3>
+                                            {c.name}
+
+                                            {isLoggedIn && (
+                                                <button
+                                                    type="button"
+                                                    className={`fav-btn ${favorites.has(c.id) ? "active" : ""}`}
+                                                    aria-label={
+                                                        favorites.has(c.id) ? "Ukloni iz favorita" : "Dodaj u favorite"
+                                                    }
+                                                    aria-pressed={favorites.has(c.id)}
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        toggleFavorite(c.id);
+                                                    }}
+                                                >
+                                                    ♥
+                                                </button>
+                                            )}
+                                        </h3>
+
+                                        {c.description && <p className="cocktail-desc">{c.description}</p>}
                                     </div>
                                 </article>
                             </Link>
@@ -135,8 +199,7 @@ export default function Home() {
                 )}
             </section>
 
-            {/* KATEGORIJE (featured-stil + stacked carousel) */}
-            {/* ===== PREGLED PO KATEGORIJAMA ===== */}
+            {/* KATEGORIJE (NE DIRAMO) */}
             <section className="home-cats">
                 <div className="home-cats-head">
                     <h2>Pregled po kategorijama</h2>
@@ -144,7 +207,7 @@ export default function Home() {
 
                 <div className="cats-stage" aria-label="Kategorije koktela">
                     {categories.map((cat, i) => {
-                        const offset = getOffset(i); // -2, -1, 0, 1, 2...
+                        const offset = getOffset(i);
                         const abs = Math.abs(offset);
                         const hidden = abs > 1;
 
@@ -167,12 +230,7 @@ export default function Home() {
                             >
                                 <article className="cat-card-inner">
                                     <div className="cat-media">
-                                        <img
-                                            src={catImages[cat.slug]}
-                                            alt={cat.label}
-                                            loading="lazy"
-                                        />
-
+                                        <img src={catImages[cat.slug]} alt={cat.label} loading="lazy" />
                                     </div>
 
                                     <div className="cat-body">
@@ -198,21 +256,11 @@ export default function Home() {
                 </div>
 
                 <div className="home-cats-controls">
-                    <button
-                        type="button"
-                        className="cat-arrow"
-                        onClick={prevCat}
-                        aria-label="Prethodna kategorija"
-                    >
+                    <button type="button" className="cat-arrow" onClick={prevCat} aria-label="Prethodna kategorija">
                         ‹
                     </button>
 
-                    <button
-                        type="button"
-                        className="cat-arrow"
-                        onClick={nextCat}
-                        aria-label="Sljedeća kategorija"
-                    >
+                    <button type="button" className="cat-arrow" onClick={nextCat} aria-label="Sljedeća kategorija">
                         ›
                     </button>
                 </div>
